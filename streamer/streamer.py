@@ -133,7 +133,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
-        except
+        except:
             self.send_error(404, 'Bad request submitted.')
 
         self.end_headers()
