@@ -83,7 +83,21 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_error(404)
             self.end_headers()
 
+    def do_POST(self):
+        if self.path == '/':
+            self.path = './index.html'
 
+        try:
+            content_length = int(self.headers['Content-Length'])
+            data_input = bytes.decode(self.rfile.read(content_length))
+            print(data_input)
+            self.send_response(301)
+            self.send_header('Location', '/index.html')
+            self.end_headers()
+        except:
+            self.send_error(404, 'Bad request submitted.')
+
+        self.end_headers()
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
