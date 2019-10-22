@@ -11,15 +11,13 @@ import socketserver
 from threading import Condition
 from http import server
 
+# Change these values to update them in the code
 FRAMERATE = 60
 RESOLOUTION = '640x480'
 ROTATION = 0
 
 PAGE = """\
 <html>
-<head>
-<title>Pi Camera</title>
-</head>
 <body>
 <center><img src="stream.mjpg" width="100%" height="auto"></center>
 <br><br>
@@ -94,6 +92,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             data_input = bytes.decode(self.rfile.read(content_length))
             print(data_input)
+            # NEED TO PROCESS THIS
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
