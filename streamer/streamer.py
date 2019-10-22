@@ -10,17 +10,20 @@ import logging
 import socketserver
 from threading import Condition
 from http import server
-import cgi
 
-PAGE="""\
+FRAMERATE = 60
+RESOLOUTION = '640x480'
+ROTATION = 0
+
+PAGE = """\
 <html>
 <head>
 <title>Pi Camera</title>
 </head>
 <body>
-<center><img src="stream.mjpg" width="1920" height="1080"></center>
+<center><img src="stream.mjpg" width="100%" height="auto"></center>
 <br><br>
-<center><form>Rotation<br><input type="text" name="rotation"><br><input type="submit"></form>
+<center><form method="post">Rotation<br><input type="text" name="rotation"><br><input type="submit"></form>
 </body>
 </html>
 """
@@ -104,10 +107,10 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-with picamera.PiCamera(resolution='1920x1080', framerate=24) as camera:
+with picamera.PiCamera(resolution=RESOLOUTION, framerate=FRAMERATE) as camera:
     output = StreamingOutput()
     # Uncomment the next line to change your Pi's Camera rotation (in degrees)
-    camera.rotation = 90
+    camera.rotation = ROTATION
     camera.start_recording(output, format='mjpeg')
     try:
         port = 8000
