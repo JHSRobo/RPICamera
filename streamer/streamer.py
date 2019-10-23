@@ -146,8 +146,8 @@ def main():
             port = 80
             address = ('', port)
             print(f"Streaming on port {port}")
-            server = StreamingServer(address, StreamingHandler)
-            server.serve_forever()
+            streamer = StreamingServer(address, StreamingHandler)
+            streamer.serve_forever()
         finally:
             camera.stop_recording()
 
