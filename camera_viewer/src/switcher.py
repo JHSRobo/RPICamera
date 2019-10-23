@@ -2,6 +2,12 @@ import cv2
 import json
 import requests
 import numpy as np
+import rospy
+from std_msgs.msg import Uint8
+
+# NEED TO ADD ROS ERRORS
+# NEED TO ADD SENSOR DATA
+# NEED TO ADD CONFIGURATION
 
 def scan(failed_dict, verified_dict):
     for address in list(failed_dict.keys()):  # Check if a camera is online and add it if so
@@ -103,58 +109,47 @@ def main():
 
     verified_dict, failed_dict = verify(data['ip_address'])
     verified_dict = ping_all(verified_dict)
-
+    # ROS Error
     [print(f'WARNING: Camera at {failed_dict[value]} failed, will try again') for value in failed_dict.keys()]
 
-    camera_num_list = [ord(camera) for camera in verified_dict]  # for detecting key presses
-    #camera_num_list.append(ord('9'))
-
-    num = '1'
     try:
         cap = cv2.VideoCapture(f'http://{list(verified_dict.values())[0]}:80/stream.mjpg')
+        num = list(verified_dict.keys())[0]
     except IndexError:
         print("No cameras loaded, quitting")
         return
+
+    rospy.init_node('pilot_page')
+
+    def change_camera(camera_num):
+        global cap, num
+        cap.release()
+        num = camera_num.data
+        cap = cv2.VideoCapture(f'http://{verified_dict[str(num)]}:80/stream.mjpg')
+    rospy.Subscriber("/rov/camera_select", Uint8, change_camera)
+
     while True:
-        if num == '9':
-            cv2.imshow('Camera Feed', show_all(verified_dict))
-
+        ret, frame = cap.read()
+        if not ret:
+            print(f"Camera at {verified_dict[str(num)]} has failed, please switch to a different camera")
+            failed_dict[str(num)] = verified_dict[str(num)]
+            verified_dict.pop(str(num), None)
+            try:
+                num = list(verified_dict.keys())[0]
+                cap.release()
+                cap = cv2.VideoCapture(f'http://{verified_dict[num]}:80/stream.mjpg')
+            except IndexError:
+                print("All cameras have failed")
+                return
         else:
-            ret, frame = cap.read()
-            if not ret:
-                print(f"Camera at {verified_dict[str(num)]} has failed, please switch to a different camera")
-                failed_dict[str(num)] = verified_dict[str(num)]
-                verified_dict.pop(str(num), None)
-                camera_num_list.remove(ord(num))
-                try:
-                    num = list(verified_dict.keys())[0]
-                    cap.release()
-                    cap = cv2.VideoCapture(f'http://{verified_dict[num]}:80/stream.mjpg')
-                except IndexError:
-                    print("All cameras have failed")
-                    return
-            else:
-                try:
-                    cv2.putText(frame, f"{data['description'][f'{num}']}: {str(num)}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255),
-                                2, cv2.LINE_AA)
-                except KeyError:
-                    cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-                cv2.imshow('Camera Feed', frame)
+            try:
+                cv2.putText(frame, f"{data['description'][f'{num}']}: {str(num)}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255),
+                            2, cv2.LINE_AA)
+            except KeyError:
+                cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.imshow('Camera Feed', frame)
 
-        k = cv2.waitKey(1)
-        if k & 0xFF == ord('q'):
-            cap.release()
-            break
-
-        elif k & 0xFF == ord('9'):
-            num = '9'
-
-        elif k & 0xFF in camera_num_list:
-            cap.release()
-            num = f'{k - 48}'
-            cap = cv2.VideoCapture(f'http://{verified_dict[str(num)]}:80/stream.mjpg')
-
-    cv2.destroyAllWindows()
+        cv2.waitKey(1)
 
 
 if __name__ == '__main__':
