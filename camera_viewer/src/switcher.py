@@ -6,13 +6,13 @@ import numpy as np
 def scan(failed_dict, verified_dict):
     for address in list(failed_dict.keys()):  # Check if a camera is online and add it if so
         try:
-            r = requests.get(f'http://{failed_dict[address]}:8000/index.html', timeout=0.025)
+            r = requests.get(f'http://{failed_dict[address]}:80/index.html', timeout=0.025)
         except requests.Timeout or requests.ConnectionError:
             pass
         else:
             if r.status_code == 200:
                 if address not in capture_list.keys():
-                    capture_list[address] = cv2.VideoCapture(f"http://{failed_dict[address]}:8000/stream.mjpg")
+                    capture_list[address] = cv2.VideoCapture(f"http://{failed_dict[address]}:80/stream.mjpg")
                     verified_dict[address] = failed_dict[address]
                     print(f'Camera at {failed_dict[address]} is online, added under {address}')
                     camera_num_list.append(ord(str(address)))
@@ -20,7 +20,7 @@ def scan(failed_dict, verified_dict):
                 else:
                     for j in range(1, 8):
                         if str(j) not in capture_list.keys():
-                            capture_list[str(j)] = cv2.VideoCapture(f"http://{failed_dict[address]}:8000/stream.mjpg")
+                            capture_list[str(j)] = cv2.VideoCapture(f"http://{failed_dict[address]}:80/stream.mjpg")
                             verified_dict[str(j)] = failed_dict[address]
                             print(f'Camera at {failed_dict[address]} is online, added under {j}')
                             camera_num_list.append(ord(str(j)))
@@ -37,12 +37,12 @@ def show_all(cameras: dict):
     cameras = list(cameras.values())
     frame = []
     for camera in range(0, len(cameras) - 1, 1):
-        ret, frame1 = cv2.VideoCapture(f'http://{cameras[camera]}:8000/stream.mjpg').read()
+        ret, frame1 = cv2.VideoCapture(f'http://{cameras[camera]}:80/stream.mjpg').read()
         if not ret:
             camera -= 1
             continue
         try:
-            ret, frame2 = cv2.VideoCapture(f'http://{cameras[camera + 1]}:8000/stream.mjpg').read()
+            ret, frame2 = cv2.VideoCapture(f'http://{cameras[camera + 1]}:80/stream.mjpg').read()
         except IndexError:
             frame2 = blank_frame(frame1)
         else:
@@ -62,7 +62,7 @@ def verify(ip_addresses: dict):
     failed_dict = {}
     for address in ip_addresses.keys():
         try:
-            r = requests.get(f'http://{ip_addresses[address]}:8000/index.html', timeout=0.05)
+            r = requests.get(f'http://{ip_addresses[address]}:80/index.html', timeout=0.05)
         except requests.ConnectTimeout:
             failed_dict[address] = ip_addresses[address]
         else:
@@ -80,7 +80,7 @@ def ping_all(ip_addresses: dict):
         if f'192.168.1.{i}' in ip_addresses.values():
              continue
         try:
-            r = requests.get(f'http://192.168.1.{i}:8000/index.html', timeout=0.05)
+            r = requests.get(f'http://192.168.1.{i}:80/index.html', timeout=0.05)
         except requests.ConnectionError or requests.ReadTimeout:
             pass
         else:
@@ -111,7 +111,7 @@ def main():
 
     num = '1'
     try:
-        cap = cv2.VideoCapture(f'http://{list(verified_dict.values())[0]}:8000/stream.mjpg')
+        cap = cv2.VideoCapture(f'http://{list(verified_dict.values())[0]}:80/stream.mjpg')
     except IndexError:
         print("No cameras loaded, quitting")
         return
@@ -129,7 +129,7 @@ def main():
                 try:
                     num = list(verified_dict.keys())[0]
                     cap.release()
-                    cap = cv2.VideoCapture(f'http://{verified_dict[num]}:8000/stream.mjpg')
+                    cap = cv2.VideoCapture(f'http://{verified_dict[num]}:80/stream.mjpg')
                 except IndexError:
                     print("All cameras have failed")
                     return
@@ -152,7 +152,7 @@ def main():
         elif k & 0xFF in camera_num_list:
             cap.release()
             num = f'{k - 48}'
-            cap = cv2.VideoCapture(f'http://{verified_dict[str(num)]}:8000/stream.mjpg')
+            cap = cv2.VideoCapture(f'http://{verified_dict[str(num)]}:80/stream.mjpg')
 
     cv2.destroyAllWindows()
 
