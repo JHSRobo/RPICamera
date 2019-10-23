@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Script to be run ONCE at the first boot
+
 # rename the pi to camera and the last 2 digits of the mac address
 MAC=$(cat /sys/class/net/eth0/address)
 
