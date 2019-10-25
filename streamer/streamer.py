@@ -153,10 +153,11 @@ else:
         with open("config.json", mode='w') as config:
             json.dump(defaults, config)
 
+output = StreamingOutput()
+
 
 def main():
     with picamera.PiCamera(resolution=data['resolution'], framerate=data['FPS']) as camera:
-        output = StreamingOutput()
         camera.rotation = data['rotation']
         camera.start_recording(output, format='mjpeg')
         try:
