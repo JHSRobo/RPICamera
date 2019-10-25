@@ -16,10 +16,9 @@ defaults = {'FPS': '60', 'rotation': '0', 'resolution': '640x480'}
 
 
 def writer(filename: str, dictionary: dict):
-    with open(filename, mode='w') as config:
+    with open(filename, mode='w') as write:
         config.truncate()
-        json.dump(dictionary, config, indent=4)
-        return config
+        json.dump(dictionary, write, indent=4)
 
 
 PAGE = """\
@@ -102,9 +101,14 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             data_input = bytes.decode(self.rfile.read(content_length))
             data_input = data_input.split("&")
+            print(data_input)
+            with open('config.json', mode='r') as change_file:
+                file = json.load(change_file)
             change = False
             for val in data_input:
                 val = val.split('=')
+                if not val[1]:
+                    continue
                 if val[0] == 'FPS':
                     try:
                         if int(val[1]) > 120 or int(val[1]) < 10:
@@ -112,23 +116,17 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             continue
                     except ValueError:
                         continue
-                elif val[0] == 'resolution':
-                    try:
-                        width, height = val[1].split("x")
-                    except ValueError:
-                        # Please use WIDTHxHEIGHT
-                        pass
                 elif val[0] == 'rotation':
                     try:
                         if int(val[1]) > 360:
                             val[1] = str(int(val[1]) % 360)
                     except ValueError:
                         pass
-                if data[val[0]] != val[1]:
+                if file[val[0]] != val[1]:
                     change = True
-                    data[val[0]] = val[1]
+                    file[val[0]] = val[1]
             if change:
-                writer("config.json", data)
+                writer("config.json", file)
                 main()
             self.send_response(301)
             self.send_header('Location', '/index.html')
@@ -164,7 +162,7 @@ def main():
         try:
             port = 80
             address = ('', port)
-            print(f"Streaming on port {port}")
+            print("Streaming on port {}".format(port))
             streamer = StreamingServer(address, StreamingHandler)
             streamer.serve_forever()
         finally:
