@@ -1,8 +1,9 @@
-# Web streaming example
-# Source code from the official PiCamera package
+# Code by Andrew Grindstaff
+# Source code adapted from the official PiCamera package
 # http://picamera.readthedocs.io/en/latest/recipes2.html#web-streaming
 
-# streams to port 80 on the raspberry pi
+# Streams the pi camera stream to port 80 on the raspberry pi.
+# Camera module must be enabled through `sudo raspi-config`
 
 import io
 import picamera
@@ -12,29 +13,41 @@ from threading import Condition
 from http import server
 import json
 
-defaults = {'FPS': '60', 'rotation': '0', 'resolution': '640x480'}
+# Default camera settings if for some reason one is not there or the 'reset' button is pressed
+default_settings = {'FPS': '60', 'rotation': '0', 'resolution': '640x480'}
 
 
-def writer(filename: str, dictionary: dict):
-    with open(filename, mode='w') as write:
-        config.truncate()
-        json.dump(dictionary, write, indent=4)
+def write(dictionary: dict):
+    with open("config.json", mode='w') as file:
+        file.truncate()
+        json.dump(dictionary, file, indent=4)
+
+
+def write_defaults():
+    with open("config.json", mode='w') as settings:
+        json.dump(default_settings, settings)
+
+
+def read():
+    with open('config.json', mode='r') as file:
+        return json.load(file)
 
 
 PAGE = """\
 <html>
-<body>
-<center><img src="stream.mjpg" width="100%" height="auto"></center>
-<br><br>
-<center><form method="post">
-Rotation<br><input type="text" name="rotation">
-<br><br>
-FPS<br><input type="text" name="FPS"> 
-<br><br>
-Resolution<br><input type="text" name="resolution"> 
-<br>
-<input type="submit"></form>
-</body>
+    <body>
+        <center>
+            <img src="stream.mjpg" width="100%" height="auto"><br><br>
+            <form method="post">
+                Rotation<br><input type="text" name="rotation"> <br> <br>
+                FPS<br><input type="text" name="FPS"><br><br>
+                Resolution<br><input type="text" name="resolution"> <br>
+                <input type="submit"> <br>
+            </form>
+            <br>
+            <button onclick="window.location.href = 'reset';">Reset Camera</button>
+        </center>
+    </body>
 </html>
 """
 
@@ -92,6 +105,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 logging.warning(
                     'Removed streaming client %s: %s',
                     self.client_address, str(e))
+        elif self.path == '/reset':
+            write_defaults()
+            self.send_response(301)
+            self.send_header('Location', '/index.html')
+            self.end_headers()
         else:
             self.send_error(404)
             self.end_headers()
@@ -101,9 +119,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             data_input = bytes.decode(self.rfile.read(content_length))
             data_input = data_input.split("&")
-            print(data_input)
-            with open('config.json', mode='r') as change_file:
-                file = json.load(change_file)
+            current_settings = read()
             change = False
             for val in data_input:
                 val = val.split('=')
@@ -122,11 +138,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             val[1] = str(int(val[1]) % 360)
                     except ValueError:
                         pass
-                if file[val[0]] != val[1]:
+                if current_settings[val[0]] != val[1]:
                     change = True
-                    file[val[0]] = val[1]
+                    current_settings[val[0]] = val[1]
             if change:
-                writer("config.json", file)
+                write(current_settings)
                 main()
             self.send_response(301)
             self.send_header('Location', '/index.html')
@@ -143,15 +159,12 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 
 try:
-    with open('config.json', mode='r') as json_file:
-        data = json.load(json_file)
+    data = read()
 except FileNotFoundError:
-    with open("config.json", mode='w') as config:
-        json.dump({'FPS': '60', 'rotation': '0', 'resolution': '640x480'}, config)
+    write_defaults()
 else:
-    if len(data.keys()) != len(defaults.keys()):
-        with open("config.json", mode='w') as config:
-            json.dump(defaults, config)
+    if len(data) != len(default_settings):
+        write_defaults()
 
 output = StreamingOutput()
 
