@@ -171,8 +171,8 @@ output = StreamingOutput()
 
 
 def main():
-    with picamera.PiCamera(resolution=data['resolution'], framerate=data['FPS']) as camera:
-        camera.rotation = data['rotation']
+    with picamera.PiCamera(resolution=data['resolution'], framerate=int(data['FPS'])) as camera:
+        camera.rotation = int(data['rotation'])
         camera.start_recording(output, format='mjpeg')
         try:
             port = 80
