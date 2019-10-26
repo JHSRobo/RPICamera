@@ -26,6 +26,7 @@ def write(dictionary: dict):
 def write_defaults():
     with open("config.json", mode='w') as settings:
         json.dump(default_settings, settings)
+        return default_settings
 
 
 def read():
@@ -161,10 +162,10 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 try:
     data = read()
 except FileNotFoundError:
-    write_defaults()
+    data = write_defaults()
 else:
     if len(data) != len(default_settings):
-        write_defaults()
+        data = write_defaults()
 
 output = StreamingOutput()
 
