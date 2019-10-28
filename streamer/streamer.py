@@ -46,7 +46,7 @@ PAGE = """\
                 <input type="submit"> <br>
             </form>
             <br>
-            <button onclick="window.location.href = 'reset';">Reset Camera</button>
+            <button onclick="window.location.href = 'reset.html';">Reset Settings To Default</button>
         </center>
     </body>
 </html>
@@ -106,11 +106,9 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 logging.warning(
                     'Removed streaming client %s: %s',
                     self.client_address, str(e))
-        elif self.path == '/reset':
+        elif self.path == '/reset.html':
             write_defaults()
-            self.send_response(301)
-            self.send_header('Location', '/index.html')
-            self.end_headers()
+            main()
         else:
             self.send_error(404)
             self.end_headers()
