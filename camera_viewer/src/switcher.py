@@ -121,30 +121,34 @@ def find_cameras(ip_addresses: dict) -> None:
 
 
 def main():
-    with open("config.json") as config:
-        data = json.load(config)
+    # Camera Setup
+    try:
+        with open("config.json") as config:
+            data = json.load(config)
+    except FileNotFoundError:
+        send_msg("Please make config.json if you want to save settings")
+        verified = {}
+        failed = {}
+    else:
+        # can't put on one line because they reference each other
+        verified = {}
+        failed = {}
+        for index in data['ip_addresses']:
+            if verify(ip_address=data['ip_addresses'][index]):
+                verified[index] = data['ip_addresses'][index]
+            else:
+                failed[index] = data['ip_addresses'][index]
+        [send_msg(f'WARNING: Camera at {failed[value]} failed, will try again') for value in failed]
 
-    # can't put on one line because they reference each other
-    verified = {}
-    failed = {}
-    for index in data['ip_addresses']:
-        if verify(ip_address=data['ip_addresses'][index]):
-            verified[index] = data['ip_addresses'][index]
-        else:
-            failed[index] = data['ip_addresses'][index]
-    if not verified:
-        # ROS Error
-        send_msg("No cameras loaded, quitting")
     find_cameras(verified)
 
-    [send_msg(f'WARNING: Camera at {failed[value]} failed, will try again') for value in failed]
-
-    try:
-        num = list(verified.keys())[0]
-    except IndexError:
-        send_msg("No cameras loaded, quitting")
+    if not verified:
+        send_msg("No cameras available, quitting")
         return
+    num = list(verified.keys())[0]
+    cap = cv2.VideoCapture(f'http://{verified[str(num)]}:80/stream.mjpg')
 
+    # ROS Setup
     rospy.init_node('pilot_page')
 
     def change_camera(camera_num):
@@ -154,6 +158,7 @@ def main():
         cap = cv2.VideoCapture(f'http://{verified[str(num)]}:80/stream.mjpg')
     rospy.Subscriber("/rov/camera_select", Uint8, change_camera)
 
+    # Showing camera
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -161,7 +166,7 @@ def main():
             failed[str(num)] = verified[str(num)]
             verified.pop(str(num), None)
             try:
-                num = list(verified.keys())[0]
+                num = list(verified)[0]
                 cap.release()
                 cap = cv2.VideoCapture(f'http://{verified[num]}:80/stream.mjpg')
             except IndexError:
