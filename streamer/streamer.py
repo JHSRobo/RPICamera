@@ -25,7 +25,7 @@ def write(dictionary: dict):
 
 def write_defaults():
     with open("config.json", mode='w') as settings:
-        json.dump(default_settings, settings)
+        json.dump(default_settings, settings, indent=4)
         return default_settings
 
 
@@ -107,7 +107,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     'Removed streaming client %s: %s',
                     self.client_address, str(e))
         elif self.path == '/reset.html':
+            self.send_response(200)
             write_defaults()
+            self.send_response(301)
+            self.send_header('Location', '/index.html')
+            self.end_headers()
             main()
         else:
             self.send_error(404)
@@ -157,18 +161,17 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-try:
-    data = read()
-except FileNotFoundError:
-    data = write_defaults()
-else:
-    if len(data) != len(default_settings):
-        data = write_defaults()
-
 output = StreamingOutput()
 
 
 def main():
+    try:
+        data = read()
+    except FileNotFoundError:
+        data = write_defaults()
+    else:
+        if len(data) != len(default_settings):
+            data = write_defaults()
     with picamera.PiCamera(resolution=data['resolution'], framerate=int(data['FPS'])) as camera:
         camera.rotation = int(data['rotation'])
         camera.start_recording(output, format='mjpeg')
