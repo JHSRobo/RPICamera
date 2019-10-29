@@ -66,7 +66,8 @@ def verify(ip_address: str) -> bool:
             return False
 
 
-def show_all(cameras: dict) -> None:
+def show_all(cameras: dict):
+    """Don't use this - incomplete"""
     cameras = list(cameras.values())
     frame = []
     for camera in range(0, len(cameras) - 1, 1):
