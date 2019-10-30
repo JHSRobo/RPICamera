@@ -157,7 +157,7 @@ def main():
         cap.release()
         num = camera_num.data
         cap = cv2.VideoCapture(f'http://{verified[str(num)]}:80/stream.mjpg')
-    rospy.Subscriber("/rov/camera_select", Uint8, change_camera)
+    rospy.Subscriber('/rov/camera_select', Uint8, change_camera)
 
     # Showing camera
     while True:

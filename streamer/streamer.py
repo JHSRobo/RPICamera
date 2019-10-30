@@ -170,7 +170,7 @@ def main():
     except FileNotFoundError:
         data = write_defaults()
     else:
-        if len(data) != len(default_settings):
+        if data.keys() != default_settings.keys():
             data = write_defaults()
     with picamera.PiCamera(resolution=data['resolution'], framerate=int(data['FPS'])) as camera:
         camera.rotation = int(data['rotation'])
