@@ -157,7 +157,6 @@ def main():
 
     def change_camera(data):
         global cap, num
-        cap.release()
         num = data.data
         cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
     rospy.Subscriber('/rov/camera_select', UInt8, change_camera)
@@ -166,9 +165,9 @@ def main():
     while True:
         ret, frame = cap.read()
         if not ret:
-            send_msg("Camera at {} has failed, please switch to a different camera".format(verified[str(num)]))
-            failed[str(num)] = verified[str(num)]
-            verified.pop(str(num), None)
+            send_msg("Camera at {} has failed, please switch to a different camera".format(verified[num]))
+            failed[num] = verified[num]
+            verified.pop(num, None)
             try:
                 num = list(verified)[0]
                 cap.release()
@@ -178,7 +177,7 @@ def main():
                 return
         else:
             try:
-                cv2.putText(frame, "{}: {}".format(data['description'][str(num)], str(num)), (20, 40),
+                cv2.putText(frame, "{}: {}".format(data['description'][num], str(num)), (20, 40),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             except KeyError:
                 cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
