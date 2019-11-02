@@ -17,13 +17,13 @@ from std_msgs.msg import Uint8
 # Task specific visuals - overlay
 
 
-def send_msg(msg: str) -> bool:
+def send_msg(msg):
     """Method to send messages. Right now just prints"""
     print(msg)
     return True
 
 
-def scan(failed_dict: dict, verified_dict: dict) -> None:
+def scan(failed_dict, verified_dict):
     """Scans all of the addresses in failed_dict to see if any camera came back online and adds them to verified dict"""
     for index in failed_dict:
         try:
@@ -48,12 +48,12 @@ def scan(failed_dict: dict, verified_dict: dict) -> None:
                         send_msg('Camera online at {} all cameras are full'.format(failed_dict[index]))
 
 
-def blank_frame(frame1) -> np.ndarray:
+def blank_frame(frame1):
     """Returns a blank frame for displaying an odd number of video streams"""
     return np.zeros(shape=frame1.shape, dtype=np.uint8)
 
 
-def verify(ip_address: str) -> bool:
+def verify(ip_address):
     """Verifies if an IP address is streaming to port 80"""
     try:
         r = requests.get('http://{}:80/index.html'.format(ip_address), timeout=0.05)
@@ -66,7 +66,7 @@ def verify(ip_address: str) -> bool:
             return False
 
 
-def show_all(cameras: dict):
+def show_all(cameras):
     """Don't use this - incomplete"""
     cameras = list(cameras.values())
     frame = []
@@ -90,7 +90,7 @@ def show_all(cameras: dict):
     return frame[0]
 
 
-def find_cameras(ip_addresses: dict) -> None:
+def find_cameras(ip_addresses):
     """Finds any cameras on the current networks"""
     verified_address = []
     current_address = ip_addresses.values()
