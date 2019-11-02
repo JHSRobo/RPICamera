@@ -127,7 +127,7 @@ def main():
     try:
         with open("config.json") as config:
             data = json.load(config)
-    except FileNotFoundError:
+    except IOError:
         send_msg("Please make config.json if you want to save settings")
         verified = {}
         failed = {}
