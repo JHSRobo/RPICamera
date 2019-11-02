@@ -8,3 +8,5 @@ git pull
 
 # Start up camera streamer
 python3 /home/camera/rpicamera/streamer/streamer.py &
+
+exit 0

@@ -19,7 +19,7 @@ chmod a+x /home/camera/rpicamera/streamer/startup.sh
 
 
 # edit rc.local
-echo -e "./home/camera/rpicamera/streamer/startup.sh \nexit0" > /etc/rc.local
+echo -e "./home/camera/rpicamera/streamer/startup.sh &\nexit0" > /etc/rc.local
 
 # reboot
 reboot now
