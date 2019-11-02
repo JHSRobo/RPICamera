@@ -131,6 +131,7 @@ def main():
         send_msg("Please make config.json if you want to save settings")
         verified = {}
         failed = {}
+        data = {}
     else:
         # can't put on one line because they reference each other
         verified = {}
@@ -147,17 +148,18 @@ def main():
     if not verified:
         send_msg("No cameras available, quitting")
         return
+    global cap, num
     num = list(verified.keys())[0]
-    cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[str(num)]))
+    cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
 
     # ROS Setup
     rospy.init_node('pilot_page')
 
-    def change_camera(camera_num):
+    def change_camera(data):
         global cap, num
         cap.release()
-        num = camera_num.data
-        cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[str(num)]))
+        num = data.data
+        cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
     rospy.Subscriber('/rov/camera_select', UInt8, change_camera)
 
     # Showing camera
