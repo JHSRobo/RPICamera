@@ -15,11 +15,11 @@ ff02::2         ip6-allrouters\n\
 echo "camera${MAC: -2}" > /etc/hostname
 
 # make startup executable
-chmod a+x /home/pi/rpicamera/streamer/startup.sh
+chmod a+x /home/camera/rpicamera/streamer/startup.sh
 
 
 # edit rc.local
-echo "./home/pi/rpicamera/streamer/startup.sh \n\ exit0" > /etc/rc.local
+echo "./home/camera/rpicamera/streamer/startup.sh \n\ exit0" > /etc/rc.local
 
 # reboot
 reboot now
