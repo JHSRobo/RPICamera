@@ -28,24 +28,24 @@ def scan(failed_dict: dict, verified_dict: dict) -> None:
     for index in failed_dict:
         try:
             # Check if a camera is online and add it if so
-            r = requests.get(f'http://{failed_dict[index]}:80/index.html', timeout=0.025)
+            r = requests.get('http://{}:80/index.html'.format(failed_dict[index]), timeout=0.025)
         except requests.Timeout or requests.ConnectionError:
             continue
         else:
             if r.status_code == 200:
                 if index not in verified_dict:
                     verified_dict[index] = failed_dict[index]
-                    send_msg(f'Camera at {failed_dict[index]} is online, added under {index}')
+                    send_msg('Camera at {} is online, added under {}'.format(failed_dict[index], index))
                     failed_dict.pop(index, None)
                 else:
                     for j in range(1, 8):
                         if str(j) not in verified_dict:
                             verified_dict[str(j)] = failed_dict[index]
-                            send_msg(f'Camera at {failed_dict[index]} is online, added under {j}')
+                            send_msg('Camera at {} is online, added under {}'.format(failed_dict[index], j))
                             failed_dict.pop(index, None)
                             break
                     else:
-                        send_msg(f'Camera online at {failed_dict[index]} all cameras are full')
+                        send_msg('Camera online at {} all cameras are full'.format(failed_dict[index]))
 
 
 def blank_frame(frame1) -> np.ndarray:
@@ -56,7 +56,7 @@ def blank_frame(frame1) -> np.ndarray:
 def verify(ip_address: str) -> bool:
     """Verifies if an IP address is streaming to port 80"""
     try:
-        r = requests.get(f'http://{ip_address}:80/index.html', timeout=0.05)
+        r = requests.get('http://{}:80/index.html'.format(ip_address), timeout=0.05)
     except requests.ConnectTimeout:
         return False
     else:
@@ -71,12 +71,12 @@ def show_all(cameras: dict):
     cameras = list(cameras.values())
     frame = []
     for camera in range(0, len(cameras) - 1, 1):
-        ret, frame1 = cv2.VideoCapture(f'http://{cameras[camera]}:80/stream.mjpg').read()
+        ret, frame1 = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(cameras[camera])).read()
         if not ret:
             camera -= 1
             continue
         try:
-            ret, frame2 = cv2.VideoCapture(f'http://{cameras[camera + 1]}:80/stream.mjpg').read()
+            ret, frame2 = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(cameras[camera + 1])).read()
         except IndexError:
             frame2 = blank_frame(frame1)
         else:
@@ -95,15 +95,15 @@ def find_cameras(ip_addresses: dict) -> None:
     verified_address = []
     current_address = ip_addresses.values()
     for i in range(2, 255):
-        if f'192.168.1.{i}' in current_address:
+        if '192.168.1.{}'.format(i) in current_address:
             continue
         try:
-            r = requests.get(f'http://192.168.1.{i}:80/index.html', timeout=0.05)
+            r = requests.get('http://192.168.1.{}:80/index.html'.format(i), timeout=0.05)
         except requests.ConnectionError or requests.ReadTimeout:
             continue
         else:
             if r.status_code == 200:
-                verified_address.append(f'192.168.1.{i}')
+                verified_address.append('192.168.1.{}'.format(i))
 
     available = []
     for j in range(1, 8):
@@ -112,7 +112,7 @@ def find_cameras(ip_addresses: dict) -> None:
 
     if available:
         for ip in verified_address:
-            send_msg(f'Camera detected at {ip}, added under {available[0]}')
+            send_msg('Camera detected at {}, added under {}'.format(ip, available[0]))
             try:
                 ip_addresses[available.pop(0)] = ip
             except IndexError:
@@ -139,7 +139,7 @@ def main():
                 verified[index] = data['ip_addresses'][index]
             else:
                 failed[index] = data['ip_addresses'][index]
-        [send_msg(f'WARNING: Camera at {failed[value]} failed, will try again') for value in failed]
+        [send_msg('WARNING: Camera at {} failed, will try again'.format(failed[value])) for value in failed]
 
     find_cameras(verified)
 
@@ -147,7 +147,7 @@ def main():
         send_msg("No cameras available, quitting")
         return
     num = list(verified.keys())[0]
-    cap = cv2.VideoCapture(f'http://{verified[str(num)]}:80/stream.mjpg')
+    cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[str(num)]))
 
     # ROS Setup
     rospy.init_node('pilot_page')
@@ -156,27 +156,27 @@ def main():
         global cap, num
         cap.release()
         num = camera_num.data
-        cap = cv2.VideoCapture(f'http://{verified[str(num)]}:80/stream.mjpg')
+        cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[str(num)]))
     rospy.Subscriber('/rov/camera_select', Uint8, change_camera)
 
     # Showing camera
     while True:
         ret, frame = cap.read()
         if not ret:
-            send_msg(f"Camera at {verified[str(num)]} has failed, please switch to a different camera")
+            send_msg("Camera at {} has failed, please switch to a different camera".format(verified[str(num)]))
             failed[str(num)] = verified[str(num)]
             verified.pop(str(num), None)
             try:
                 num = list(verified)[0]
                 cap.release()
-                cap = cv2.VideoCapture(f'http://{verified[num]}:80/stream.mjpg')
+                cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
             except IndexError:
                 send_msg("All cameras have failed")
                 return
         else:
             try:
-                cv2.putText(frame, f"{data['description'][f'{num}']}: {str(num)}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255),
-                            2, cv2.LINE_AA)
+                cv2.putText(frame, "{}: {}".format(data['description'][str(num)], str(num)), (20, 40),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             except KeyError:
                 cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             cv2.imshow('Camera Feed', frame)
