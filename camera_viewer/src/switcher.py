@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Switcher.py
 # By Andrew Grindstaff
 # ROS Package to switch between cameras streaming to port 80/stream.mjpg
@@ -8,7 +9,7 @@ import json
 import requests
 import numpy as np
 import rospy
-from std_msgs.msg import Uint8
+from std_msgs.msg import UInt8
 
 # NEED TO ADD ROS ERRORS
 # NEED TO ADD SENSOR DATA
@@ -157,7 +158,7 @@ def main():
         cap.release()
         num = camera_num.data
         cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[str(num)]))
-    rospy.Subscriber('/rov/camera_select', Uint8, change_camera)
+    rospy.Subscriber('/rov/camera_select', UInt8, change_camera)
 
     # Showing camera
     while True:
