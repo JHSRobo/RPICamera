@@ -181,6 +181,8 @@ def main():
             print("Streaming on port {}".format(port))
             streamer = StreamingServer(address, StreamingHandler)
             streamer.serve_forever()
+        except KeyboardInterrupt:
+            return
         finally:
             camera.stop_recording()
 
