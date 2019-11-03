@@ -38,7 +38,7 @@ PAGE = """\
 <html>
     <body>
         <center>
-            <img src="stream.mjpg" width="100%" height="auto"><br><br>
+            <img src="stream.mjpg" width="auto" height="100%"><br><br>
             <form method="post">
                 Rotation<br><input type="text" name="rotation"> <br> <br>
                 FPS<br><input type="text" name="FPS"><br><br>
