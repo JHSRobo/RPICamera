@@ -8,6 +8,7 @@
 import io
 import picamera
 import logging
+import sys
 import socketserver
 from threading import Condition
 from http import server
@@ -112,7 +113,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
-            main()
+            sys.exit()
         else:
             self.send_error(404)
             self.end_headers()
@@ -146,7 +147,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     current_settings[val[0]] = val[1]
             if change:
                 write(current_settings)
-                main()
+                sys.exit()
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()

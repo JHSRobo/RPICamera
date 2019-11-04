@@ -6,7 +6,9 @@
 cd /home/camera/rpicamera/ || exit
 git pull
 
-# Start up camera streamer
-python3 /home/camera/rpicamera/streamer/streamer.py &
+# Start up camera streamer and restart it if it exits
+while true; do
+  python3 /home/camera/rpicamera/streamer/streamer.py
+  done
 
 exit 0
