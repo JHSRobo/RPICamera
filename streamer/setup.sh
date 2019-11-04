@@ -21,5 +21,8 @@ chmod a+x /home/camera/rpicamera/streamer/startup.sh
 # edit rc.local
 echo -e "#!/bin/sh -e \n./home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
+# turn off the red light
+echo "disable_camera_led=1" > /boot/config.txt
+
 # reboot
 reboot now
