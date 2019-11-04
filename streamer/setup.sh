@@ -17,7 +17,6 @@ echo "camera${MAC: -2}" > /etc/hostname
 # make startup executable
 chmod a+x /home/camera/rpicamera/streamer/startup.sh
 
-
 # edit rc.local
 echo -e "#!/bin/sh -e \n./home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
