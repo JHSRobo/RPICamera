@@ -192,6 +192,8 @@ def main():
 if __name__ == '__main__':
     try:
         main()
+        cv2.destroyAllWindows()
+        sys.exit()
     except KeyboardInterrupt:
         cv2.destroyAllWindows()
         sys.exit()
