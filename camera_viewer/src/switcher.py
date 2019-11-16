@@ -7,9 +7,9 @@
 import cv2
 import json
 import requests
+import signal
 import numpy as np
 import rospy
-import signal
 from std_msgs.msg import UInt8
 
 # NEED TO ADD ROS ERRORS
@@ -20,18 +20,19 @@ from std_msgs.msg import UInt8
 
 
 class GracefulKiller:
-  kill_now = False
-  def __init__(self):
-    signal.signal(signal.SIGINT, self.exit_gracefully)
-    signal.signal(signal.SIGTERM, self.exit_gracefully)
+    kill_now = False
 
-  def exit_gracefully(self,signum, frame):
-    self.kill_now = True
+    def __init__(self):
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+    def exit_gracefully(self, signum, frame):
+        self.kill_now = True
 
 
 def send_msg(msg):
     """Method to send messages. Right now just prints"""
-    print(msg)
+    rospy.loginfo(msg)
     return True
 
 
@@ -134,12 +135,21 @@ def find_cameras(ip_addresses):
 
 
 def main():
+    # ROS Setup
+    rospy.init_node('pilot_page')
+
+    def change_camera(camera_num):
+        global cap, num
+        num = camera_num.data
+        cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
+    rospy.Subscriber('/rov/camera_select', UInt8, change_camera)
+
     # Camera Setup
     try:
         with open("config.json") as config:
             data = json.load(config)
     except IOError:
-        send_msg("Please make config.json if you want to save settings")
+        rospy.logwarn("Please make config.json if you want to save settings")
         verified = {}
         failed = {}
         data = {}
@@ -152,32 +162,23 @@ def main():
                 verified[index] = data['ip_addresses'][index]
             else:
                 failed[index] = data['ip_addresses'][index]
-        [send_msg('WARNING: Camera at {} failed, will try again'.format(failed[value])) for value in failed]
+        [rospy.logerr('WARNING: Camera at {} failed, will try again'.format(failed[value])) for value in failed]
 
     find_cameras(verified)
 
     if not verified:
-        send_msg("No cameras available, quitting")
+        rospy.logfatal("No cameras available, quitting")
         return
     global cap, num
     num = list(verified.keys())[0]
     cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
-
-    # ROS Setup
-    rospy.init_node('pilot_page')
-
-    def change_camera(data):
-        global cap, num
-        num = data.data
-        cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
-    rospy.Subscriber('/rov/camera_select', UInt8, change_camera)
         
     # Showing camera
     killer = GracefulKiller()
     while not killer.kill_now:
         ret, frame = cap.read()
         if not ret:
-            send_msg("Camera at {} has failed, please switch to a different camera".format(verified[num]))
+            rospy.logerr("Camera at {} has failed, please switch to a different camera".format(verified[num]))
             failed[num] = verified[num]
             verified.pop(num, None)
             try:
@@ -185,9 +186,11 @@ def main():
                 cap.release()
                 cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
             except IndexError:
-                send_msg("All cameras have failed")
+                rospy.logfatal("All cameras have failed")
                 return
         else:
+            cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
             try:
                 cv2.putText(frame, "{}: {}".format(data['description'][num], str(num)), (20, 40),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
