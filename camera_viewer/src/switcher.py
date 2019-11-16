@@ -8,6 +8,7 @@ import cv2
 import json
 import requests
 import signal
+import time
 import numpy as np
 import rospy
 from std_msgs.msg import UInt8
@@ -167,8 +168,10 @@ def main():
     find_cameras(verified)
 
     if not verified:
-        rospy.logfatal("No cameras available, quitting")
-        return
+        rospy.logerror("No cameras available")
+        while not verified:
+            find_cameras(verified)
+            time.sleep(0.1)
     global cap, num
     num = list(verified.keys())[0]
     cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
