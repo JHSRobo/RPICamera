@@ -187,7 +187,7 @@ def main():
 
             cv2.waitKey(1)
     except KeyboardInterrupt:
-        break
+        return
 
 if __name__ == '__main__':
     try:
