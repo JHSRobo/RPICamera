@@ -135,6 +135,15 @@ def find_cameras(ip_addresses):
 
 
 def main():
+    # ROS Setup
+    rospy.init_node('pilot_page')
+
+    def change_camera(camera_num):
+        global cap, num
+        num = camera_num.data
+        cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
+    rospy.Subscriber('/rov/camera_select', UInt8, change_camera)
+
     # Camera Setup
     try:
         with open("config.json") as config:
@@ -163,15 +172,6 @@ def main():
     global cap, num
     num = list(verified.keys())[0]
     cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
-
-    # ROS Setup
-    rospy.init_node('pilot_page')
-
-    def change_camera(camera_num):
-        global cap, num
-        num = camera_num.data
-        cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
-    rospy.Subscriber('/rov/camera_select', UInt8, change_camera)
         
     # Showing camera
     killer = GracefulKiller()
