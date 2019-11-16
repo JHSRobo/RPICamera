@@ -9,7 +9,7 @@ import json
 import requests
 import numpy as np
 import rospy
-import sys
+import signal
 from std_msgs.msg import UInt8
 
 # NEED TO ADD ROS ERRORS
@@ -17,6 +17,16 @@ from std_msgs.msg import UInt8
 # NEED TO ADD CONFIGURATION
 # Overlay and timer stack
 # Task specific visuals - overlay
+
+
+class GracefulKiller:
+  kill_now = False
+  def __init__(self):
+    signal.signal(signal.SIGINT, self.exit_gracefully)
+    signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+  def exit_gracefully(self,signum, frame):
+    self.kill_now = True
 
 
 def send_msg(msg):
@@ -161,39 +171,33 @@ def main():
         num = data.data
         cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
     rospy.Subscriber('/rov/camera_select', UInt8, change_camera)
+        
+    # Showing camera
+    killer = GracefulKiller()
+    while not killer.kill_now:
+        ret, frame = cap.read()
+        if not ret:
+            send_msg("Camera at {} has failed, please switch to a different camera".format(verified[num]))
+            failed[num] = verified[num]
+            verified.pop(num, None)
+            try:
+                num = list(verified)[0]
+                cap.release()
+                cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
+            except IndexError:
+                send_msg("All cameras have failed")
+                return
+        else:
+            try:
+                cv2.putText(frame, "{}: {}".format(data['description'][num], str(num)), (20, 40),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            except KeyError:
+                cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.imshow('Camera Feed', frame)
 
-    try:
-        # Showing camera
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                send_msg("Camera at {} has failed, please switch to a different camera".format(verified[num]))
-                failed[num] = verified[num]
-                verified.pop(num, None)
-                try:
-                    num = list(verified)[0]
-                    cap.release()
-                    cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(verified[num]))
-                except IndexError:
-                    send_msg("All cameras have failed")
-                    return
-            else:
-                try:
-                    cv2.putText(frame, "{}: {}".format(data['description'][num], str(num)), (20, 40),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-                except KeyError:
-                    cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-                cv2.imshow('Camera Feed', frame)
+        cv2.waitKey(1)
 
-            cv2.waitKey(1)
-    except KeyboardInterrupt:
-        return
-
+        
 if __name__ == '__main__':
-    try:
-        main()
-        cv2.destroyAllWindows()
-        sys.exit()
-    except KeyboardInterrupt:
-        cv2.destroyAllWindows()
-        sys.exit()
+    main()
+    cv2.destroyAllWindows()
