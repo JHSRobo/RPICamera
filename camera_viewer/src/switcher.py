@@ -168,7 +168,7 @@ def main():
     find_cameras(verified)
 
     if not verified:
-        rospy.logerror("No cameras available")
+        rospy.logerr("No cameras available")
         while not verified:
             find_cameras(verified)
             time.sleep(0.1)
