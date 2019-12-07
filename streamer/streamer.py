@@ -188,6 +188,9 @@ def main():
             streamer.serve_forever()
         except KeyboardInterrupt:
             return
+        except PermissionError:
+            print("Needs sudo")
+            return
         finally:
             camera.stop_recording()
 
