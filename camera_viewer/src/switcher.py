@@ -84,8 +84,8 @@ class SwitchCameras:
             self.camera_failed()
             return False
         else:
-            cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
-            cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            #cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
+            #cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
             cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             return frame
 
@@ -99,7 +99,6 @@ class SwitchCameras:
             self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
         except IndexError:
             rospy.logfatal("All cameras have failed")
-
 
 
 class GracefulKiller:
