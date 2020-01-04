@@ -201,8 +201,6 @@ def main():
         except PermissionError:
             print("Needs sudo")
             return
-        else:
-            restart = True
         finally:
             camera.stop_recording()
 
