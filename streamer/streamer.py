@@ -18,7 +18,7 @@ import json
 
 # Default camera settings if for some reason one is not there or the 'reset' button is pressed
 default_settings = {'FPS': 60, 'rotation': 0, 'resolution': '640x480',
-                    'awb_mode': 'sunlight', 'exposure_mode': 'fixedfps',
+                    'awb_mode': 'cloudy', 'exposure_mode': 'fixedfps',
                     'format': 'mjpeg'}
 
 
@@ -182,6 +182,7 @@ def main():
         camera.rotation = data['rotation']
         camera.awb_mode = data['awb_mode']
         camera.exposure_mode = data['exposure_mode']
+        camera.image_effect = 'none'
         camera.start_recording(output, format=data['format'])
         try:
             port = 80
