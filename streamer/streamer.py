@@ -2,6 +2,8 @@
 # Source code adapted from the official PiCamera package
 # http://picamera.readthedocs.io/en/latest/recipes2.html#web-streaming
 
+# https://github.com/waveform80/pistreaming
+
 # Streams the pi camera stream to port 80 on the raspberry pi.
 # Camera module must be enabled through `sudo raspi-config`
 
