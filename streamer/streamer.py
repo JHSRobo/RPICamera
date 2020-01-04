@@ -114,7 +114,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     'Removed streaming client %s: %s',
                     self.client_address, str(e))
         elif self.path == '/reset.html':
-            self.send_response(200)
             write_defaults()
             self.send_response(301)
             self.send_header('Location', '/index.html')
