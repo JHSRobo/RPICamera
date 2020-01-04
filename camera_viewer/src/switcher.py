@@ -43,7 +43,7 @@ class SwitchCameras:
             rospy.logfatal("No cameras available, quitting")
             self.wait_for_cameras()
         self.num = list(self.verified.keys())[0]
-        self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[num]))
+        self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
 
     def wait_for_cameras(self):
         while not self.verified:

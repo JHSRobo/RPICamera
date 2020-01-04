@@ -40,7 +40,7 @@ PAGE = """\
 <html>
     <body>
         <center>
-            <img src="stream.mjpg" width="auto" height="100%"><br><br>
+            <img src="stream.h264" width="auto" height="100%"><br><br>
             <form method="post">
                 Rotation<br><input type="text" name="rotation"> <br> <br>
                 FPS<br><input type="text" name="FPS"><br><br>
@@ -86,7 +86,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_header('Content-Length', len(content))
             self.end_headers()
             self.wfile.write(content)
-        elif self.path == '/stream.mjpg':
+        elif self.path == '/stream.h264':
             self.send_response(200)
             self.send_header('Age', 0)
             self.send_header('Cache-Control', 'no-cache, private')
