@@ -60,6 +60,7 @@ PAGE = """\
             <button onclick="window.location.href = 'reset.html';">Reset Settings To Default</button>
             <br>
             <button onclick="window.location.href = 'restart.html';">Restart Camera, Pulling from Github</button>
+            <br>
             <button onclick="window.location.href = 'shutdown.html';">Kill Camera (NOTE: REQUIRES MANUAL RESTART)</button>
         </center>
     </body>
