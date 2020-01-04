@@ -23,9 +23,13 @@ default_settings = {'FPS': 60, 'rotation': 0, 'resolution': '640x480',
                     'format': 'mjpeg'}
 
 
-def write(dictionary: dict):
+def kill():
     global streamer
     streamer.shutdown()
+
+
+def write(dictionary: dict):
+    kill()
     with open("config.json", mode='w') as file:
         file.truncate()
         json.dump(dictionary, file, indent=4)
@@ -124,7 +128,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
         elif self.path == '/restart.html':
             os.system("sudo restart now")
         elif self.path == 'shutdown.html':
-            raise KeyboardInterrupt
+            kill()
         else:
             self.send_error(404)
             self.end_headers()
