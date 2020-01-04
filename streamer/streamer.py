@@ -10,8 +10,8 @@
 
 import io
 import picamera
-import os
 import logging
+import sys
 import socketserver
 from threading import Condition
 from http import server
@@ -23,13 +23,9 @@ default_settings = {'FPS': 60, 'rotation': 0, 'resolution': '640x480',
                     'format': 'mjpeg'}
 
 
-def kill():
+def write(dictionary: dict):
     global streamer
     streamer.shutdown()
-
-
-def write(dictionary: dict):
-    kill()
     with open("config.json", mode='w') as file:
         file.truncate()
         json.dump(dictionary, file, indent=4)
@@ -58,10 +54,6 @@ PAGE = """\
             </form>
             <br>
             <button onclick="window.location.href = 'reset.html';">Reset Settings To Default</button>
-            <br>
-            <button onclick="window.location.href = 'restart.html';">Restart Camera, Pulling from Github</button>
-            <br>
-            <button onclick="window.location.href = 'shutdown.html';">Kill Camera (NOTE: REQUIRES MANUAL RESTART)</button>
         </center>
     </body>
 </html>
@@ -126,10 +118,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
-        elif self.path == '/restart.html':
-            os.system("sudo restart now")
-        elif self.path == 'shutdown.html':
-            kill()
+            sys.exit()
         else:
             self.send_error(404)
             self.end_headers()
@@ -201,6 +190,8 @@ def main():
         except PermissionError:
             print("Needs sudo")
             return
+        else:
+            restart = True
         finally:
             camera.stop_recording()
 
