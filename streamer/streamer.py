@@ -24,16 +24,16 @@ default_settings = {'FPS': 60, 'rotation': 0, 'resolution': '640x480',
 
 
 def write(dictionary: dict):
+    global streamer
+    streamer.shutdown()
     with open("config.json", mode='w') as file:
         file.truncate()
         json.dump(dictionary, file, indent=4)
-        raise SettingsChangeError
+    return dictionary
 
 
 def write_defaults():
-    with open("config.json", mode='w') as settings:
-        json.dump(default_settings, settings, indent=4)
-        return default_settings
+    return write(default_settings)
 
 
 def read():
@@ -58,9 +58,6 @@ PAGE = """\
     </body>
 </html>
 """
-
-class SettingsChangeError(Exception):
-    pass 
 
 
 class StreamingOutput(object):
@@ -133,7 +130,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             data_input = bytes.decode(self.rfile.read(content_length))
             data_input = data_input.split("&")
             current_settings = read()
-            print(data_input)
             change = False
             for val in data_input:
                 val = val.split('=')
@@ -160,7 +156,6 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
-        except SettingsChangeError:
         except Exception as e:
             self.send_error(404, 'Error: {}'.format(e))
 
@@ -172,11 +167,8 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-output = StreamingOutput()
-
-
 def main():
-    global rerun
+    global restart, streamer
     try:
         data = read()
     except FileNotFoundError:
@@ -192,26 +184,27 @@ def main():
         camera.image_effect = 'none'
         camera.start_recording(output, format=data['format'])
         try:
-            port = 80
-            address = ('', port)
-            print("Streaming on port {}".format(port))
-            streamer = StreamingServer(address, StreamingHandler)
+            print("Starting stream")
             streamer.serve_forever()
         except KeyboardInterrupt:
-            rerun = False
             return
         except PermissionError:
-            rerun = False
             print("Needs sudo")
             return
-        except SettingsChangeError:
-            print(123)
-            return
+        else:
+            restart = True
         finally:
             camera.stop_recording()
 
 
 if __name__ == '__main__':
-    rerun = True
-    while rerun:
+    restart = False
+    output = StreamingOutput()
+    port = 80
+    address = ('', port)
+    print("Streaming on port {}".format(port))
+    streamer = StreamingServer(address, StreamingHandler)
+    main()
+    while restart:
+        restart = False
         main()
