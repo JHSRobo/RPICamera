@@ -10,8 +10,8 @@
 
 import io
 import picamera
+import os
 import logging
-import sys
 import socketserver
 from threading import Condition
 from http import server
@@ -54,6 +54,9 @@ PAGE = """\
             </form>
             <br>
             <button onclick="window.location.href = 'reset.html';">Reset Settings To Default</button>
+            <br>
+            <button onclick="window.location.href = 'restart.html';">Restart Camera, Pulling from Github</button>
+            <button onclick="window.location.href = 'shutdown.html';">Kill Camera (NOTE: REQUIRES MANUAL RESTART)</button>
         </center>
     </body>
 </html>
@@ -118,7 +121,10 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
-            sys.exit()
+        elif self.path == '/restart.html':
+            os.system("sudo restart now")
+        elif self.path == 'shutdown.html':
+            raise KeyboardInterrupt
         else:
             self.send_error(404)
             self.end_headers()
