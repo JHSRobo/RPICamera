@@ -27,6 +27,7 @@ def write(dictionary: dict):
     with open("config.json", mode='w') as file:
         file.truncate()
         json.dump(dictionary, file, indent=4)
+        raise SettingsChangeError
 
 
 def write_defaults():
@@ -57,6 +58,9 @@ PAGE = """\
     </body>
 </html>
 """
+
+class SettingsChangeError(Exception):
+    pass 
 
 
 class StreamingOutput(object):
@@ -129,6 +133,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             data_input = bytes.decode(self.rfile.read(content_length))
             data_input = data_input.split("&")
             current_settings = read()
+            print(data_input)
             change = False
             for val in data_input:
                 val = val.split('=')
@@ -152,10 +157,10 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     current_settings[val[0]] = val[1]
             if change:
                 write(current_settings)
-                sys.exit()
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
+        except SettingsChangeError:
         except Exception as e:
             self.send_error(404, 'Error: {}'.format(e))
 
@@ -171,6 +176,7 @@ output = StreamingOutput()
 
 
 def main():
+    global rerun
     try:
         data = read()
     except FileNotFoundError:
@@ -179,8 +185,8 @@ def main():
         if data.keys() != default_settings.keys():
             data = write_defaults()
     #resolution=data['resolution'],
-    with picamera.PiCamera(framerate=data['FPS']) as camera:
-        camera.rotation = data['rotation']
+    with picamera.PiCamera(framerate=int(data['FPS'])) as camera:
+        camera.rotation = int(data['rotation'])
         camera.awb_mode = data['awb_mode']
         camera.exposure_mode = data['exposure_mode']
         camera.image_effect = 'none'
@@ -192,13 +198,20 @@ def main():
             streamer = StreamingServer(address, StreamingHandler)
             streamer.serve_forever()
         except KeyboardInterrupt:
+            rerun = False
             return
         except PermissionError:
+            rerun = False
             print("Needs sudo")
+            return
+        except SettingsChangeError:
+            print(123)
             return
         finally:
             camera.stop_recording()
 
 
 if __name__ == '__main__':
-    main()
+    rerun = True
+    while rerun:
+        main()
