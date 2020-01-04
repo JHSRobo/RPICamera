@@ -121,7 +121,7 @@ def verify(ip_address):
     """Verifies if an IP address is streaming to port 80"""
     try:
         r = requests.get('http://{}:80/index.html'.format(ip_address), timeout=0.05)
-    except requests.ConnectTimeout:
+    except requests.exceptions.RequestException:
         return False
     else:
         return True if r.status_code == 200 else False
