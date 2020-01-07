@@ -24,8 +24,7 @@ default_settings = {'FPS': 60, 'rotation': 0, 'resolution': '640x480',
 
 
 def write(dictionary: dict):
-    global streamer
-    streamer.shutdown()
+    Stream.restart()
     with open("config.json", mode='w') as file:
         file.truncate()
         json.dump(dictionary, file, indent=4)
@@ -37,8 +36,20 @@ def write_defaults():
 
 
 def read():
-    with open('config.json', mode='r') as file:
-        return json.load(file)
+    try:
+        data = read()
+    except FileNotFoundError:
+        with open("config.json", mode='w') as file:
+            file.truncate()
+            json.dump(default_settings, file, indent=4)
+        data = default_settings
+    else:
+        if data.keys() != default_settings.keys():
+            with open("config.json", mode='w') as file:
+                file.truncate()
+                json.dump(default_settings, file, indent=4)
+            data = default_settings
+    return data
 
 
 PAGE = """\
@@ -100,9 +111,9 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.end_headers()
             try:
                 while True:
-                    with output.condition:
-                        output.condition.wait()
-                        frame = output.frame
+                    with Stream.output.condition:
+                        Stream.output.condition.wait()
+                        frame = Stream.output.frame
                     self.wfile.write(b'--FRAME\r\n')
                     self.send_header('Content-Type', 'image/jpeg')
                     self.send_header('Content-Length', len(frame))
@@ -166,44 +177,40 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-def main():
-    global restart, streamer
-    try:
+class Stream:
+    output = StreamingOutput()
+    streamer = StreamingServer(('', 80), StreamingHandler)
+
+    @staticmethod
+    def run():
         data = read()
-    except FileNotFoundError:
-        data = write_defaults()
-    else:
-        if data.keys() != default_settings.keys():
-            data = write_defaults()
-    #resolution=data['resolution'],
-    with picamera.PiCamera(framerate=int(data['FPS'])) as camera:
-        camera.rotation = int(data['rotation'])
-        camera.awb_mode = data['awb_mode']
-        camera.exposure_mode = data['exposure_mode']
-        camera.image_effect = 'none'
-        camera.start_recording(output, format=data['format'])
-        try:
-            print("Starting stream")
-            streamer.serve_forever()
-        except KeyboardInterrupt:
-            return
-        except PermissionError:
-            print("Needs sudo")
-            return
-        else:
-            restart = True
-        finally:
-            camera.stop_recording()
+        with picamera.PiCamera(framerate=int(data['FPS'])) as camera:
+            camera.rotation = int(data['rotation'])
+            camera.awb_mode = data['awb_mode']
+            camera.exposure_mode = data['exposure_mode']
+            camera.image_effect = 'none'
+            camera.start_recording(Stream.output, format=data['format'])
+            try:
+                print("Starting stream")
+                Stream.streamer.serve_forever()
+            except KeyboardInterrupt:
+                return
+            except PermissionError:
+                print("Needs sudo")
+                return
+            finally:
+                Stream.streamer.shutdown()
+                camera.stop_recording()
+
+    @staticmethod
+    def restart():
+        Stream.streamer.shutdown()
+        Stream.run()
+
+
+def main():
+    Stream.run()
 
 
 if __name__ == '__main__':
-    restart = False
-    output = StreamingOutput()
-    port = 80
-    address = ('', port)
-    print("Streaming on port {}".format(port))
-    streamer = StreamingServer(address, StreamingHandler)
     main()
-    while restart:
-        restart = False
-        main()
