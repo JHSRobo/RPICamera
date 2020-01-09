@@ -10,7 +10,7 @@ import requests
 import signal
 import time
 import numpy as np
-import thread
+import threading
 import rospy
 from std_msgs.msg import UInt8
 
@@ -21,8 +21,9 @@ from std_msgs.msg import UInt8
 
 
 class SwitchCameras:
-    def __init__(self):
+    def __init__(self, killer):
         # can't put on one line because then they reference each other
+        self.killer = killer
         self.verified = {}
         self.failed = {}
         try:
@@ -51,28 +52,30 @@ class SwitchCameras:
 
     def find_cameras(self):
         """Finds any cameras on the current networks"""
-        verified_address = []
-        current_address = self.verified.values()
-        for i in range(2, 255):
-            if '192.168.1.{}'.format(i) in current_address:
-                continue
-            if verify('192.168.1.{}'.format(i)):
-                verified_address.append('192.168.1.{}'.format(i))
+        while not self.killer.kill_now:
+            verified_address = []
+            current_address = self.verified.values()
+            for i in range(2, 255):
+                if '192.168.1.{}'.format(i) in current_address:
+                    continue
+                if verify('192.168.1.{}'.format(i)):
+                    verified_address.append('192.168.1.{}'.format(i))
 
-        available = []
-        for j in range(1, 8):
-            if str(j) not in self.verified:
-                available.append(j)
+            available = []
+            for j in range(1, 8):
+                if str(j) not in self.verified:
+                    available.append(j)
 
-        if available:
-            for ip in verified_address:
-                rospy.loginfo('Camera detected at {}, added under {}'.format(ip, available[0]))
-                try:
-                    self.verified[available.pop(0)] = ip
-                except IndexError:
-                    break
-        else:
-            rospy.loginfo("Cameras detected, but all slots filled")
+            if available:
+                for ip in verified_address:
+                    rospy.loginfo('Camera detected at {}, added under {}'.format(ip, available[0]))
+                    try:
+                        self.verified[available.pop(0)] = ip
+                    except IndexError:
+                        break
+            else:
+                rospy.loginfo("Cameras detected, but all slots filled")
+            time.sleep(5)
 
     def change_camera(self, camera_num):
         self.num = camera_num.data
@@ -151,13 +154,12 @@ def show_all(cameras):
     return frame[0]
 
 
-def main():
+def main(killer):
     # ROS Setup
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
         
     # Showing camera
-    killer = GracefulKiller()
     while not killer.kill_now:
         frame = switcher.read()
         if frame:
@@ -167,6 +169,9 @@ def main():
 
 
 if __name__ == '__main__':
-    switcher = SwitchCameras()
-    thread.start_new_thread(main)
-    thread.start_new_thread(switcher.find_cameras)
+    graceful_killer = GracefulKiller()
+    switcher = SwitchCameras(graceful_killer)
+    mainThread = threading.Thread(target=main, args=(graceful_killer,))
+    cameraThread = threading.Thread(target=switcher.find_cameras())
+    mainThread.start()
+    cameraThread.start()
