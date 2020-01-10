@@ -37,7 +37,8 @@ def write_defaults():
 
 def read():
     try:
-        data = read()
+      with open('config.json', mode='r') as file:
+        data = json.load(file)
     except FileNotFoundError:
         with open("config.json", mode='w') as file:
             file.truncate()
