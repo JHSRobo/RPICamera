@@ -20,6 +20,19 @@ from std_msgs.msg import UInt8
 # Task specific visuals - overlay
 
 
+def read(cap, num):
+    """Purely for ease of use so the function to actually display a frame does not get lost when we inevitably want to
+    add more stuff to the frame"""
+    ret, frame = cap.read()
+    if not ret:
+        return False
+    else:
+        # cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
+        # cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        return frame
+
+
 class SwitchCameras:
     def __init__(self, killer):
         # can't put on one line because then they reference each other
@@ -89,14 +102,10 @@ class SwitchCameras:
         rospy.spin()
 
     def read(self):
-        ret, frame = self.cap.read()
-        if not ret:
+        frame = read(self.cap, self.num)
+        if not frame:
             self.camera_failed()
-            return False
         else:
-            #cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
-            #cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             return frame
 
     def camera_failed(self):
