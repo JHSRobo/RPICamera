@@ -81,6 +81,13 @@ class SwitchCameras:
         self.num = camera_num.data
         self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
 
+    def which_camera(self):
+        def ip():
+            return self.verified[self.num]
+        rospy.init_node("camera_ip_server")
+        s = rospy.Service('current_ip', camera_viewer.srv.current_ip, ip)
+        rospy.spin()
+
     def read(self):
         ret, frame = self.cap.read()
         if not ret:
@@ -167,11 +174,12 @@ def main(killer):
         cv2.waitKey(1)
     cv2.destroyAllWindows()
 
-
 if __name__ == '__main__':
     graceful_killer = GracefulKiller()
     switcher = SwitchCameras(graceful_killer)
     mainThread = threading.Thread(target=main, args=(graceful_killer,))
-    cameraThread = threading.Thread(target=switcher.find_cameras())
+    cameraThread = threading.Thread(target=switcher.find_cameras)
+    serviceThread = threading.Thread(target=switcher.which_camera)
     mainThread.start()
     cameraThread.start()
+    serviceThread.start()
