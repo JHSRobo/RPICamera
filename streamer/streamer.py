@@ -35,7 +35,6 @@ def write_defaults():
 
 
 def read():
-    print("Reading")
     try:
         with open('config.json', mode='r') as file:
             data = json.load(file)
@@ -50,7 +49,6 @@ def read():
                 file.truncate()
                 json.dump(default_settings, file, indent=4)
             data = default_settings
-    print("Read")
     return data
 
 
@@ -192,6 +190,7 @@ class Stream:
     def run():
         data = read()
         with picamera.PiCamera(framerate=int(data['FPS'])) as camera:
+            print("Setup")
             camera.rotation = int(data['rotation'])
             camera.awb_mode = data['awb_mode']
             camera.exposure_mode = data['exposure_mode']
