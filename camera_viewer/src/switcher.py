@@ -105,7 +105,7 @@ class SwitchCameras:
 
     def read(self):
         frame = read(self.cap, self.num)
-        if not frame:
+        if frame is False:
             self.camera_failed()
         else:
             return frame
