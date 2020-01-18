@@ -24,10 +24,10 @@ default_settings = {'FPS': 60, 'rotation': 0, 'resolution': '640x480',
 
 
 def write(dictionary: dict):
-    Stream.restart()
     with open("config.json", mode='w') as file:
         file.truncate()
         json.dump(dictionary, file, indent=4)
+    Stream.restart()
     return dictionary
 
 
@@ -37,8 +37,8 @@ def write_defaults():
 
 def read():
     try:
-      with open('config.json', mode='r') as file:
-        data = json.load(file)
+        with open('config.json', mode='r') as file:
+            data = json.load(file)
     except FileNotFoundError:
         with open("config.json", mode='w') as file:
             file.truncate()
