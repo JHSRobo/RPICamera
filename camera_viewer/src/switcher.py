@@ -185,7 +185,9 @@ def main():
     camera_thread.start()
     camera_thread.run()
 
+    print 123
     while not False:#rospy.is_shutdown():
+        print 4567
         frame = switcher.read()
         if frame is not False:
             cv2.imshow('Camera Feed', frame)
