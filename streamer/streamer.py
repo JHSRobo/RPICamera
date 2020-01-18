@@ -213,6 +213,7 @@ class Stream:
         Stream.streamer.shutdown()
         print("Restarting Stream")
         Stream.run()
+        print("Running stream")
 
 
 def main():
