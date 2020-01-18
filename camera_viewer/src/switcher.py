@@ -51,7 +51,6 @@ class SwitchCameras:
         except (IOError, KeyError):
             print "Please make config.json if you want to save settings"
 
-
         self.find_cameras()
         if not self.verified:
             print "No cameras available, quitting"
@@ -91,6 +90,7 @@ class SwitchCameras:
             time.sleep(5)
 
     def change_camera(self, camera_num):
+        print self.camera_num.data
         self.num = camera_num.data
         self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
 
@@ -177,6 +177,7 @@ def main(killer):
         
     # Showing camera
     while not killer.kill_now:
+        print 'showing'
         frame = switcher.read()
         if frame:
             cv2.imshow('Camera Feed', frame)
