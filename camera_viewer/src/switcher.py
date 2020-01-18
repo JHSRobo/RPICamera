@@ -62,6 +62,10 @@ class SwitchCameras:
         while not self.verified:
             self.find_cameras()
 
+    def find_cameras_search(self):
+        self.find_cameras()
+        time.sleep(5)
+
     def find_cameras(self):
         """Finds any cameras on the current networks"""
         while not self.killer.kill_now:
@@ -87,7 +91,6 @@ class SwitchCameras:
                         break
             else:
                 print("Cameras detected, but all slots filled")
-            time.sleep(5)
 
     def change_camera(self, camera_num):
         self.num = camera_num.data
@@ -187,8 +190,9 @@ def main(killer):
 if __name__ == '__main__':
     graceful_killer = GracefulKiller()
     switcher = SwitchCameras(graceful_killer)
+    print 'running'
     mainThread = threading.Thread(target=main, args=(graceful_killer,))
-    cameraThread = threading.Thread(target=switcher.find_cameras)
+    cameraThread = threading.Thread(target=switcher.find_cameras_search)
     serviceThread = threading.Thread(target=switcher.which_camera)
     mainThread.start()
     cameraThread.start()
