@@ -193,6 +193,7 @@ def main():
 
 
 def stream(switcher):#, killer):
+    time.sleep(5)
     while not False:#rospy.is_shutdown():
         frame = switcher.read()
         if frame is not False:
