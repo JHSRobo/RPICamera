@@ -172,14 +172,29 @@ def show_all(cameras):
     return frame[0]
 
 
-def main():#killer):
+def main():
+
+    # graceful_killer = GracefulKiller()
+    switcher = SwitchCameras()
     # ROS Setup
     rospy.init_node('pilot_page')
     print 'made node'
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
-        
-    # Showing camera
-    while True:
+
+    streaming_thread = threading.Thread(target=stream, args=(switcher,))#, args=(graceful_killer,))
+    streaming_thread.start()
+    streaming_thread.run()
+
+    camera_thread = threading.Thread(target=switcher.find_cameras_search)
+    camera_thread.start()
+    camera_thread.run()
+
+    # serviceThread = threading.Thread(target=switcher.which_camera)
+    # serviceThread.start()
+
+
+def stream(switcher):#, killer):
+    while not rospy.is_shutdown():
         print 123
         frame = switcher.read()
         if frame:
@@ -189,13 +204,9 @@ def main():#killer):
 
 
 if __name__ == '__main__':
-    #graceful_killer = GracefulKiller()
-    switcher = SwitchCameras()#graceful_killer)
-    mainThread = threading.Thread(target=main)#, args=(graceful_killer,))
-    cameraThread = threading.Thread(target=switcher.find_cameras_search)
-    #serviceThread = threading.Thread(target=switcher.which_camera)
-    mainThread.start()
-    cameraThread.start()
-    mainThread.run()
-    cameraThread.run()
-    #serviceThread.start()
+    main()
+
+
+
+
+
