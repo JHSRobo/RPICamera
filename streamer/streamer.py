@@ -189,6 +189,7 @@ class Stream:
     @staticmethod
     def run():
         data = read()
+        print("Presetup")
         with picamera.PiCamera(framerate=int(data['FPS'])) as camera:
             print("Setup")
             camera.rotation = int(data['rotation'])
