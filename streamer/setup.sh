@@ -15,10 +15,10 @@ ff02::2         ip6-allrouters\n\
 echo "camera${MAC: -2}" > /etc/hostname
 
 # make startup executable
-chmod a+x ~/rpicamera/streamer/startup.sh
+chmod a+x /home/camera/rpicamera/streamer/startup.sh
 
 # edit rc.local
-echo -e "#!/bin/sh -e \n.~/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
+echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
 # turn off the red light
 echo "disable_camera_led=1" > /boot/config.txt
