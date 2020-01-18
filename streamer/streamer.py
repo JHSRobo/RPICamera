@@ -11,7 +11,6 @@
 import io
 import picamera
 import logging
-import sys
 import socketserver
 from threading import Condition
 from http import server
@@ -134,7 +133,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             write_defaults()
         elif self.path == 'shutdown.html':
             Stream.streamer.shutdown()
-            sys.exit()
+            raise KeyboardInterrupt
         else:
             self.send_error(404)
             self.end_headers()
