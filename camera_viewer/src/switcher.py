@@ -42,15 +42,15 @@ class SwitchCameras:
         try:
             with open("config.json") as config:
                 data = json.load(config)
+        except IOError:
+            rospy.logwarn("Please make config.json if you want to save settings")
+        else:
             for index in data['ip_addresses']:
                 if verify(ip_address=data['ip_addresses'][index]):
                     self.verified[index] = data['ip_addresses'][index]
                 else:
                     self.failed[index] = data['ip_addresses'][index]
             [rospy.logerr('Camera at {} failed, will try again'.format(self.failed[value])) for value in self.failed]
-        except IOError or KeyError:
-            rospy.logwarn("Please make config.json if you want to save settings")
-
 
         self.find_cameras()
         if not self.verified:
