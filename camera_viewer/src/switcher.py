@@ -34,9 +34,9 @@ def read(cap, num):
 
 
 class SwitchCameras:
-    def __init__(self):#, killer):
+    def __init__(self, killer):
         # can't put on one line because then they reference each other
-        #self.killer = killer
+        self.killer = killer
         self.verified = {}
         self.failed = {}
         try:
@@ -175,7 +175,7 @@ def show_all(cameras):
 def main():
 
     graceful_killer = GracefulKiller()
-    switcher = SwitchCameras()
+    switcher = SwitchCameras(graceful_killer)
 
     # ROS Setup
     rospy.init_node('pilot_page')
