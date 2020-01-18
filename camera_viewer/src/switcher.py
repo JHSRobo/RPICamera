@@ -63,7 +63,7 @@ class SwitchCameras:
             self.find_cameras()
 
     def find_cameras_search(self):
-        while True:#not self.killer.kill_now:
+        while not self.killer.kill_now and not rospy.is_shutdown():
             self.find_cameras()
             time.sleep(5)
 
@@ -174,7 +174,7 @@ def show_all(cameras):
 
 def main():
 
-    # graceful_killer = GracefulKiller()
+    graceful_killer = GracefulKiller()
     switcher = SwitchCameras()
 
     # ROS Setup
@@ -184,19 +184,17 @@ def main():
     print 'starting thread'
     camera_thread = threading.Thread(target=switcher.find_cameras_search)
     camera_thread.start()
-    camera_thread.run()
 
-    print 123
-    while not False:#rospy.is_shutdown():
-        print 4567
+    #service_thread = threading.Thread(target=switcher.which_camera)
+    #service_thread.start()
+
+    while not graceful_killer.kill_now and not rospy.is_shutdown():
         frame = switcher.read()
         if frame is not False:
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
     cv2.destroyAllWindows()
-
-    # serviceThread = threading.Thread(target=switcher.which_camera)
-    # serviceThread.start()
+    camera_thread.join()
 
 
 if __name__ == '__main__':
