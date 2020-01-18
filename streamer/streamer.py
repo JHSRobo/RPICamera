@@ -35,6 +35,7 @@ def write_defaults():
 
 
 def read():
+    print("Reading")
     try:
         with open('config.json', mode='r') as file:
             data = json.load(file)
@@ -49,6 +50,7 @@ def read():
                 file.truncate()
                 json.dump(default_settings, file, indent=4)
             data = default_settings
+    print("Read")
     return data
 
 
@@ -194,6 +196,7 @@ class Stream:
             camera.awb_mode = data['awb_mode']
             camera.exposure_mode = data['exposure_mode']
             camera.image_effect = 'none'
+            print("Recording")
             camera.start_recording(Stream.output, format=data['format'])
             try:
                 print("Starting stream")
@@ -213,7 +216,6 @@ class Stream:
         Stream.streamer.shutdown()
         print("Restarting Stream")
         Stream.run()
-        print("Running stream")
 
 
 def main():
