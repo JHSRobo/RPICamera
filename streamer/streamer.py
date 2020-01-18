@@ -185,35 +185,39 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 class Stream:
     output = StreamingOutput()
     streamer = StreamingServer(('', 80), StreamingHandler)
+    camera = picamera.PiCamera()
 
     @staticmethod
     def run():
         data = read()
         print("Presetup")
-        with picamera.PiCamera(framerate=int(data['FPS'])) as camera:
-            print("Setup")
-            camera.rotation = int(data['rotation'])
-            camera.awb_mode = data['awb_mode']
-            camera.exposure_mode = data['exposure_mode']
-            camera.image_effect = 'none'
-            print("Recording")
-            camera.start_recording(Stream.output, format=data['format'])
-            try:
-                print("Starting stream")
-                Stream.streamer.serve_forever()
-            except KeyboardInterrupt:
-                return
-            except PermissionError:
-                print("Needs sudo")
-                return
-            finally:
-                Stream.streamer.shutdown()
-                camera.stop_recording()
+        Stream.camera = picamera.PiCamera(framerate=int(data['FPS']))
+        print("Setup")
+        Stream.camera.rotation = int(data['rotation'])
+        Stream.camera.awb_mode = data['awb_mode']
+        Stream.camera.exposure_mode = data['exposure_mode']
+        Stream.camera.image_effect = 'none'
+        print("Recording")
+        Stream.camera.start_recording(Stream.output, format=data['format'])
+        try:
+            print("Starting stream")
+            Stream.streamer.serve_forever()
+        except KeyboardInterrupt:
+            return
+        except PermissionError:
+            print("Needs sudo")
+            return
+        finally:
+            Stream.streamer.shutdown()
+            Stream.camera.stop_recording()
+            Stream.camera.close()
 
     @staticmethod
     def restart():
         print("Attempting shutdown")
         Stream.streamer.shutdown()
+        Stream.camera.close()
+        Stream.camera.stop_recording()
         print("Restarting Stream")
         Stream.run()
 
