@@ -42,19 +42,20 @@ class SwitchCameras:
         try:
             with open("config.json") as config:
                 data = json.load(config)
-        except IOError:
-            print("Please make config.json if you want to save settings")
+        except (IOError, KeyError):
+            print "Please make config.json if you want to save settings"
         else:
             for index in data['ip_addresses']:
                 if verify(ip_address=data['ip_addresses'][index]):
                     self.verified[index] = data['ip_addresses'][index]
                 else:
                     self.failed[index] = data['ip_addresses'][index]
-            [print('Camera at {} failed, will try again'.format(self.failed[value])) for value in self.failed]
+            for value in self.failed:
+                print 'Camera at {} failed, will try again'.format(self.failed[value])
 
         self.find_cameras()
         if not self.verified:
-            print("No cameras available, quitting")
+            print "No cameras available, quitting"
             self.wait_for_cameras()
         self.num = list(self.verified.keys())[0]
         self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
