@@ -197,6 +197,7 @@ def stream(switcher):#, killer):
         print 123
         frame = switcher.read()
         if frame is not False:
+            print 123
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
     cv2.destroyAllWindows()
