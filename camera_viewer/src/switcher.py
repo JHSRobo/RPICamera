@@ -34,7 +34,7 @@ def read(cap, num):
 
 
 class SwitchCameras:
-    def __init__(self, killer):
+    def __init__(self):#, killer):
         # can't put on one line because then they reference each other
         #self.killer = killer
         self.verified = {}
@@ -189,8 +189,8 @@ def main():#killer):
 
 
 if __name__ == '__main__':
-    graceful_killer = GracefulKiller()
-    switcher = SwitchCameras(graceful_killer)
+    #graceful_killer = GracefulKiller()
+    switcher = SwitchCameras()#graceful_killer)
     mainThread = threading.Thread(target=main)#, args=(graceful_killer,))
     cameraThread = threading.Thread(target=switcher.find_cameras_search)
     #serviceThread = threading.Thread(target=switcher.which_camera)
