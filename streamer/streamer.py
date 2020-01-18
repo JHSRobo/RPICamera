@@ -167,7 +167,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     change = True
                     current_settings[val[0]] = val[1]
             self.send_response(301)
-            self.send_header('Location', '/index22.html')
+            self.send_header('Location', '/index.html')
             self.end_headers()
             if change:
                 write(current_settings)
