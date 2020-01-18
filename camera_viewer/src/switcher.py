@@ -181,7 +181,6 @@ def main():
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
-    print 'starting thread'
     camera_thread = threading.Thread(target=switcher.find_cameras_search)
     camera_thread.start()
 
