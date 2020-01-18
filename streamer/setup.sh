@@ -24,11 +24,7 @@ chmod a+x /home/camera/rpicamera/streamer/startup.sh
 echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
 # enable cameras
-grep "start_x=1" /boot/config.txt
-if ! grep "start_x=1" /boot/config.txt
-then
-  sed -i "s/start_x=0/start_x=1/g" /boot/config.txt
-fi
+sudo raspi-config nonint do_camera 0
 
 # turn off the red light
 echo "disable_camera_led=1" > /boot/config.txt
