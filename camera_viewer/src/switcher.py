@@ -43,18 +43,18 @@ class SwitchCameras:
             with open("config.json") as config:
                 data = json.load(config)
         except IOError:
-            rospy.logwarn("Please make config.json if you want to save settings")
+            print("Please make config.json if you want to save settings")
         else:
             for index in data['ip_addresses']:
                 if verify(ip_address=data['ip_addresses'][index]):
                     self.verified[index] = data['ip_addresses'][index]
                 else:
                     self.failed[index] = data['ip_addresses'][index]
-            [rospy.logerr('Camera at {} failed, will try again'.format(self.failed[value])) for value in self.failed]
+            [print('Camera at {} failed, will try again'.format(self.failed[value])) for value in self.failed]
 
         self.find_cameras()
         if not self.verified:
-            rospy.logfatal("No cameras available, quitting")
+            print("No cameras available, quitting")
             self.wait_for_cameras()
         self.num = list(self.verified.keys())[0]
         self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
@@ -81,13 +81,13 @@ class SwitchCameras:
 
             if available:
                 for ip in verified_address:
-                    rospy.loginfo('Camera detected at {}, added under {}'.format(ip, available[0]))
+                    print('Camera detected at {}, added under {}'.format(ip, available[0]))
                     try:
                         self.verified[available.pop(0)] = ip
                     except IndexError:
                         break
             else:
-                rospy.loginfo("Cameras detected, but all slots filled")
+                print("Cameras detected, but all slots filled")
             time.sleep(5)
 
     def change_camera(self, camera_num):
@@ -109,7 +109,7 @@ class SwitchCameras:
             return frame
 
     def camera_failed(self):
-        rospy.logerr("Camera at {} has failed, please switch to a different camera".format(self.verified[self.num]))
+        print("Camera at {} has failed, please switch to a different camera".format(self.verified[self.num]))
         self.failed[self.num] = self.verified[self.num]
         self.verified.pop(self.num, None)
         try:
@@ -117,7 +117,7 @@ class SwitchCameras:
             self.cap.release()
             self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
         except IndexError:
-            rospy.logfatal("All cameras have failed")
+            print("All cameras have failed")
 
 
 class GracefulKiller:
@@ -192,4 +192,4 @@ if __name__ == '__main__':
     serviceThread = threading.Thread(target=switcher.which_camera)
     mainThread.start()
     cameraThread.start()
-    serviceThread.start()
+    #serviceThread.start()
