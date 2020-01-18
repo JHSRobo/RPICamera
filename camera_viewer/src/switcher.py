@@ -36,7 +36,7 @@ def read(cap, num):
 class SwitchCameras:
     def __init__(self, killer):
         # can't put on one line because then they reference each other
-        self.killer = killer
+        #self.killer = killer
         self.verified = {}
         self.failed = {}
         try:
