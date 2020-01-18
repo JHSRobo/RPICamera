@@ -176,6 +176,7 @@ def main(killer):
         
     # Showing camera
     while not killer.kill_now:
+        print 'reading cameras'
         frame = switcher.read()
         if frame:
             cv2.imshow('Camera Feed', frame)
