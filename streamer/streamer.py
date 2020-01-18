@@ -209,7 +209,9 @@ class Stream:
 
     @staticmethod
     def restart():
+        print("Attempting shutdown")
         Stream.streamer.shutdown()
+        print("Restarting Stream")
         Stream.run()
 
 
