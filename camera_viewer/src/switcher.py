@@ -181,27 +181,19 @@ def main():
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
-    streaming_thread = threading.Thread(target=stream, args=(switcher,))#, args=(graceful_killer,))
-    streaming_thread.start()
-    streaming_thread.run()
-
     camera_thread = threading.Thread(target=switcher.find_cameras_search)
     camera_thread.start()
     camera_thread.run()
 
-    # serviceThread = threading.Thread(target=switcher.which_camera)
-    # serviceThread.start()
-
-
-def stream(switcher):#, killer):
-    print 123
-    time.sleep(5)
     while not False:#rospy.is_shutdown():
         frame = switcher.read()
         if frame is not False:
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
     cv2.destroyAllWindows()
+
+    # serviceThread = threading.Thread(target=switcher.which_camera)
+    # serviceThread.start()
 
 
 if __name__ == '__main__':
