@@ -131,7 +131,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_header('Location', '/index.html')
             self.end_headers()
             write_defaults()
-        elif self.path == 'shutdown.html':
+        elif self.path == '/shutdown.html':
             Stream.streamer.shutdown()
             raise KeyboardInterrupt
         else:
