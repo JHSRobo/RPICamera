@@ -40,11 +40,7 @@ class SwitchCameras:
         self.verified = {}
         self.failed = {}
         try:
-            with open("config.json") as config:
-                data = json.load(config)
-        except (IOError, KeyError):
-            print "Please make config.json if you want to save settings"
-        else:
+            data = json.load(open("config.json"))
             for index in data['ip_addresses']:
                 if verify(ip_address=data['ip_addresses'][index]):
                     self.verified[index] = data['ip_addresses'][index]
@@ -52,6 +48,9 @@ class SwitchCameras:
                     self.failed[index] = data['ip_addresses'][index]
             for value in self.failed:
                 print 'Camera at {} failed, will try again'.format(self.failed[value])
+        except (IOError, KeyError):
+            print "Please make config.json if you want to save settings"
+
 
         self.find_cameras()
         if not self.verified:
