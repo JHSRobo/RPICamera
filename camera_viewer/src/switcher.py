@@ -194,7 +194,7 @@ def main():
 
 
 def stream(switcher):#, killer):
-    while not rospy.is_shutdown():
+    while not False:#rospy.is_shutdown():
         print 123
         frame = switcher.read()
         if frame:
