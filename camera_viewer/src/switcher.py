@@ -176,6 +176,7 @@ def main():
 
     # graceful_killer = GracefulKiller()
     switcher = SwitchCameras()
+
     # ROS Setup
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
@@ -193,6 +194,7 @@ def main():
 
 
 def stream(switcher):#, killer):
+    print 123
     time.sleep(5)
     while not False:#rospy.is_shutdown():
         frame = switcher.read()
