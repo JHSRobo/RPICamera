@@ -2,6 +2,9 @@
 
 # Script to be run ONCE at the first boot
 
+# install python3
+sudo apt-get install python3-picamera
+
 # rename the pi to camera and the last 2 digits of the mac address
 MAC=$(cat /sys/class/net/eth0/address)
 
@@ -21,7 +24,11 @@ chmod a+x /home/camera/rpicamera/streamer/startup.sh
 echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
 # enable cameras
-sudo raspi-config nonint do_camera 0
+grep "start_x=1" /boot/config.txt
+if ! grep "start_x=1" /boot/config.txt
+then
+  sed -i "s/start_x=0/start_x=1/g" /boot/config.txt
+fi
 
 # turn off the red light
 echo "disable_camera_led=1" > /boot/config.txt
