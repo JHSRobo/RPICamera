@@ -192,4 +192,6 @@ if __name__ == '__main__':
     serviceThread = threading.Thread(target=switcher.which_camera)
     mainThread.start()
     cameraThread.start()
+    mainThread.run()
+    cameraThread.run()
     #serviceThread.start()
