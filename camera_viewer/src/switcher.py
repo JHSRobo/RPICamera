@@ -27,8 +27,6 @@ def read(cap, num):
     if not ret:
         return False
     else:
-        # cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
-        # cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         return frame
 
@@ -187,6 +185,8 @@ def main():
     #service_thread = threading.Thread(target=switcher.which_camera)
     #service_thread.start()
 
+    cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
+    cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     while not graceful_killer.kill_now and not rospy.is_shutdown():
         frame = switcher.read()
         if frame is not False:
