@@ -63,34 +63,34 @@ class SwitchCameras:
             self.find_cameras()
 
     def find_cameras_search(self):
-        self.find_cameras()
-        time.sleep(5)
+        while not self.killer.kill_now:
+            self.find_cameras()
+            time.sleep(5)
 
     def find_cameras(self):
         """Finds any cameras on the current networks"""
-        while not self.killer.kill_now:
-            verified_address = []
-            current_address = self.verified.values()
-            for i in range(2, 255):
-                if '192.168.1.{}'.format(i) in current_address:
-                    continue
-                if verify('192.168.1.{}'.format(i)):
-                    verified_address.append('192.168.1.{}'.format(i))
+        verified_address = []
+        current_address = self.verified.values()
+        for i in range(2, 255):
+            if '192.168.1.{}'.format(i) in current_address:
+                continue
+            if verify('192.168.1.{}'.format(i)):
+                verified_address.append('192.168.1.{}'.format(i))
 
-            available = []
-            for j in range(1, 8):
-                if str(j) not in self.verified:
-                    available.append(j)
+        available = []
+        for j in range(1, 8):
+            if str(j) not in self.verified:
+                available.append(j)
 
-            if available:
-                for ip in verified_address:
-                    print('Camera detected at {}, added under {}'.format(ip, available[0]))
-                    try:
-                        self.verified[available.pop(0)] = ip
-                    except IndexError:
-                        break
-            else:
-                print("Cameras detected, but all slots filled")
+        if available:
+            for ip in verified_address:
+                print('Camera detected at {}, added under {}'.format(ip, available[0]))
+                try:
+                    self.verified[available.pop(0)] = ip
+                except IndexError:
+                    break
+        else:
+            print("Cameras detected, but all slots filled")
 
     def change_camera(self, camera_num):
         self.num = camera_num.data
@@ -178,8 +178,8 @@ def main(killer):
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
         
     # Showing camera
-    while not killer.kill_now:
-        print 'reading cameras'
+    while True:
+        print 123
         frame = switcher.read()
         if frame:
             cv2.imshow('Camera Feed', frame)
@@ -190,7 +190,6 @@ def main(killer):
 if __name__ == '__main__':
     graceful_killer = GracefulKiller()
     switcher = SwitchCameras(graceful_killer)
-    print 'running'
     mainThread = threading.Thread(target=main, args=(graceful_killer,))
     cameraThread = threading.Thread(target=switcher.find_cameras_search)
     serviceThread = threading.Thread(target=switcher.which_camera)
