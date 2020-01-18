@@ -66,6 +66,8 @@ PAGE = """\
             </form>
             <br>
             <button onclick="window.location.href = 'reset.html';">Reset Settings To Default</button>
+            <br> <br> <br>
+            <button onclick="window.location.href = 'shutdown.html';">Kill Switch for manual testing</button>
         </center>
     </body>
 </html>
@@ -126,10 +128,12 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     'Removed streaming client %s: %s',
                     self.client_address, str(e))
         elif self.path == '/reset.html':
-            write_defaults()
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
+            write_defaults()
+        elif self.path == 'shutdown.html':
+            Stream.streamer.shutdown()
             sys.exit()
         else:
             self.send_error(404)
@@ -162,11 +166,11 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 if current_settings[val[0]] != val[1]:
                     change = True
                     current_settings[val[0]] = val[1]
+            self.send_response(301)
+            self.send_header('Location', '/index22.html')
+            self.end_headers()
             if change:
                 write(current_settings)
-            self.send_response(301)
-            self.send_header('Location', '/index.html')
-            self.end_headers()
         except Exception as e:
             self.send_error(404, 'Error: {}'.format(e))
 
