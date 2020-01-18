@@ -175,6 +175,7 @@ def show_all(cameras):
 def main():#killer):
     # ROS Setup
     rospy.init_node('pilot_page')
+    print 'made node'
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
         
     # Showing camera
