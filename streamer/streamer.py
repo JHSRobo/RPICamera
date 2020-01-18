@@ -61,12 +61,12 @@ PAGE = """\
                 Rotation<br><input type="text" name="rotation"> <br> <br>
                 FPS<br><input type="text" name="FPS"><br><br>
                 Resolution<br><input type="text" name="resolution"> <br>
-                <input type="submit"> <br>
+                <input type="submit" value="Submit"> <br>
             </form>
             <br>
             <button onclick="window.location.href = 'reset.html';">Reset Settings To Default</button>
             <br> <br> <br>
-            <button onclick="window.location.href = 'shutdown.html';">Kill Switch for manual testing</button>
+            <button onclick="window.location.href = 'shutdown.html';">Kill Switch for Manual Testing</button>
         </center>
     </body>
 </html>
@@ -168,6 +168,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
+            print(current_settings)
             if change:
                 write(current_settings)
         except Exception as e:
