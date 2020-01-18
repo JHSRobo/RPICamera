@@ -63,7 +63,7 @@ class SwitchCameras:
             self.find_cameras()
 
     def find_cameras_search(self):
-        while not self.killer.kill_now:
+        while True:#not self.killer.kill_now:
             self.find_cameras()
             time.sleep(5)
 
@@ -172,7 +172,7 @@ def show_all(cameras):
     return frame[0]
 
 
-def main(killer):
+def main():#killer):
     # ROS Setup
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
@@ -190,9 +190,9 @@ def main(killer):
 if __name__ == '__main__':
     graceful_killer = GracefulKiller()
     switcher = SwitchCameras(graceful_killer)
-    mainThread = threading.Thread(target=main, args=(graceful_killer,))
+    mainThread = threading.Thread(target=main)#, args=(graceful_killer,))
     cameraThread = threading.Thread(target=switcher.find_cameras_search)
-    serviceThread = threading.Thread(target=switcher.which_camera)
+    #serviceThread = threading.Thread(target=switcher.which_camera)
     mainThread.start()
     cameraThread.start()
     mainThread.run()
