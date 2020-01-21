@@ -4,6 +4,7 @@ export HEIGHT=480
 export FPS=60
 export PORT=5001
 
+# load in environment variables from config.json
 for output in $(jq -r 'keys[] as $k | "\($k)=\(.[$k])"' config.json)
 do
   export "${output?}"
