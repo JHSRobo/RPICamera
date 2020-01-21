@@ -4,6 +4,7 @@
 
 # Attempt to pull latest repo
 cd /home/camera/rpicamera/ || exit
+#git checkout release
 git pull
 
 # Start up camera streamer and restart it if it exits

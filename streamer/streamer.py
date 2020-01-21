@@ -190,15 +190,13 @@ class Stream:
     @staticmethod
     def run():
         data = read()
-        print("Presetup")
-        Stream.camera = picamera.PiCamera(framerate=int(data['FPS']))
         print("Setup")
         Stream.camera.rotation = int(data['rotation'])
         Stream.camera.awb_mode = data['awb_mode']
         Stream.camera.exposure_mode = data['exposure_mode']
         Stream.camera.image_effect = 'none'
         print("Recording")
-        Stream.camera.start_recording(Stream.output, format=data['format'])
+        Stream.camera.start_recording(Stream.output, format=data['format'], bitrate=80000000, quality=100)
         try:
             print("Starting stream")
             Stream.streamer.serve_forever()
@@ -209,14 +207,12 @@ class Stream:
             return
         finally:
             Stream.streamer.shutdown()
-            Stream.camera.stop_recording()
             Stream.camera.close()
 
     @staticmethod
     def restart():
         print("Attempting shutdown")
         Stream.streamer.shutdown()
-        Stream.camera.close()
         Stream.camera.stop_recording()
         print("Restarting Stream")
         Stream.run()
