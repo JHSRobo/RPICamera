@@ -1,1 +1,3 @@
-sudo apt-get install -y nmap
+apt update
+apt install -y nmap
+apt install jq

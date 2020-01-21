@@ -3,7 +3,7 @@
 # Script to be run ONCE at the first boot
 
 # install python3
-sudo apt-get install python3-picamera
+sudo apt install python3-picamera
 
 # rename the pi to camera and the last 2 digits of the mac address
 MAC=$(cat /sys/class/net/eth0/address)
