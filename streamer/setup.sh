@@ -2,46 +2,68 @@
 
 # Script to be run ONCE at the first boot
 
-# Safety checks
-if [ "${USER}" == "jhsrobo" ]
-then
-  echo "This is not allowed for the main ROV image, please use main-pi-setup.sh"
-  exit
-fi
-
-if [ "$EUID" -ne 0 ]
+if [ "$(EUID)" -ne 0 ]
   then echo "Please run as root"
   exit
 fi
 
+echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
+
+if [ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1)" -ne 0 ]; then
+    echo "Please connect to the internet to install PiCamera"
+    exit
+fi
+
+
 # install python3
 dpkg -l | grep python3-picamera || apt install python3-picamera
 
-dpkg -l | grep python3-picamera || (echo "Picamera library failed to install. Please install it manually using sudo apt install python3-picamera" && exit)
+# ensure it installed correctly
+dpkg -l | grep python3-picamera || (echo "PiCamera library failed to install. Please install it manually using sudo apt install python3-picamera" && exit)
 
-# rename the pi to camera and the last 2 digits of the mac address
-MAC=$(cat /sys/class/net/eth0/address)
 
-echo -e "127.0.0.1       localhost
-::1             localhost ip6-localhost ip6-loopback
-ff02::1         ip6-allnodes
-ff02::2         ip6-allrouters
+# Safety checks
+if [ "${USER}" == "jhsrobo" ]
+then
+  # main pi setup
+  # doesn't rename the pi and doesn't restart it which should allow it to not break the whole thing
 
-127.0.1.1      camera${MAC: -2}" > /etc/hosts
+  # make startup executable
+  chmod a+x /home/jhsrobo/Github/rpicamera/streamer/startup.sh
 
-echo "camera${MAC: -2}" > /etc/hostname
+  # edit rc.local
+  echo -e "#!/bin/sh -e \nbash /home/jhsrobo/Github/rpicamera/streamer/main-pi-startup.sh &\nexit 0" > /etc/rc.local
 
-# make startup executable
-chmod a+x /home/camera/rpicamera/streamer/startup.sh
+  # reboot
+  echo "Setup complete, please reboot"
+  exit
+else
+  #setup for all of the camera modules
 
-# edit rc.local
-echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
+  # rename the pi to camera and the last 2 digits of the mac address
+  MAC=$(cat /sys/class/net/eth0/address)
 
-# enable cameras
-sudo raspi-config nonint do_camera 0
+  echo -e "127.0.0.1       localhost
+  ::1             localhost ip6-localhost ip6-loopback
+  ff02::1         ip6-allnodes
+  ff02::2         ip6-allrouters
 
-# turn off the red light
-echo "disable_camera_led=1" >> /boot/config.txt
+  127.0.1.1      camera${MAC: -2}" > /etc/hosts
 
-# reboot
-reboot now
+  echo "camera${MAC: -2}" > /etc/hostname
+
+  # make startup executable
+  chmod a+x /home/camera/rpicamera/streamer/startup.sh
+
+  # edit rc.local
+  echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
+
+  # enable cameras
+  sudo raspi-config nonint do_camera 0
+
+  # turn off the red light
+  echo "disable_camera_led=1" >> /boot/config.txt
+
+  # reboot
+  reboot now
+fi
