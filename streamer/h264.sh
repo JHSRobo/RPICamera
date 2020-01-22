@@ -16,7 +16,7 @@ raspivid -n -ih -t 0 -rot $ROTATION -w $WIDTH -h $HEIGHT -fps $FPS -b 1000000 -o
 # -t 0 to keep streaming forever
 # -rot ROTATION to rotate the stream
 # -w WIDTH to set width
-# -h HEIGHT to set height
+# -h HEIGHT to set heightx
 # -fps FPS to set frames
 # -b BITRATE to set bitrate
 # -o to pass the output to STDOUT which allows it to be pushed to ncat
