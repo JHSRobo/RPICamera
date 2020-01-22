@@ -2,6 +2,13 @@
 
 # Script to be run ONCE at the first boot
 
+# Safety checks
+if [ "${USER}" == "jhsrobo" ]
+then
+  echo "This is not allowed for the main ROV image, please use main-pi-setup.sh"
+  exit 1
+fi
+
 # install python3
 sudo apt install python3-picamera
 
