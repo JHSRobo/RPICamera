@@ -2,7 +2,7 @@
 
 # Script to be run at EVERY boot
 
-if [ "${USER}" == "camera${MAC: -2}" ]
+if [ "$(id -u -n)" == "camera$(cat /sys/class/net/eth0/address)" ]
 then
   bash "/home/camera/rpicamera/streamer/setup.sh"
 fi
