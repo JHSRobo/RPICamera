@@ -36,6 +36,7 @@ then
 
   # reboot
   echo "Setup complete, please reboot"
+  echo "#Setup" >> /etc/rc.local
   exit
 else
   #setup for all of the camera modules
@@ -65,5 +66,6 @@ else
   echo "disable_camera_led=1" >> /boot/config.txt
 
   # reboot
+  echo "#Setup" >> /etc/rc.local
   reboot now
 fi

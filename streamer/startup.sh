@@ -1,20 +1,22 @@
 #!/bin/bash
 
 # Script to be run at EVERY boot
-
-if [ "$(id -u -n)" == "camera$(cat /sys/class/net/eth0/address)" ]
+if [ -f "/home/camera" ]
 then
-  bash "/home/camera/rpicamera/streamer/setup.sh"
+   cd /home/camera/rpicamera || exit
+else
+  cd /home/jhsrobo/Github/rpicamera || exit
 fi
 
+grep "Setup" /etc/rc.local || ( echo "running setup" && bash setup.sh )
+
 # Attempt to pull latest repo
-cd /home/camera/rpicamera/ || exit
 #git checkout release
 git pull
 
 # Start up camera streamer and restart it if it exits
 while true; do
-  python3 /home/camera/rpicamera/streamer/streamer.py
+  python3 streamer.py
   done
 
 exit 0
