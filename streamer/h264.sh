@@ -10,7 +10,7 @@ do
   export "${output?}"
 done
 
-raspivid -n -ih -t 0 -rot $ROTATION -w $WIDTH -h $HEIGHT -fps $FPS -b 1000000 -o - | ncat -lkv4 $PORT
+raspivid -n -ih -t 0 -rot $ROTATION -w $WIDTH -h $HEIGHT -fps $FPS -b 1000000 -qp 10 -o tcp://0.0.0.0:5000
 # -n to not show the video on the Raspberry Pi display
 # -ih to insert H.264 headers into the stream
 # -t 0 to keep streaming forever
