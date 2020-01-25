@@ -5,7 +5,7 @@ if [ -f "/home/camera" ]
 then
    cd /home/camera/rpicamera || exit
 else
-  cd /home/jhsrobo/Github/rpicamera || exit
+  cd /home/jhsrobo/rpicamera || exit
 fi
 
 grep "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
@@ -18,7 +18,7 @@ git pull
 
 # Start up camera streamer and restart it if it exits
 while true; do
-  python3 streamer.py
+  bash raspivid.sh
   done
 
 exit 0

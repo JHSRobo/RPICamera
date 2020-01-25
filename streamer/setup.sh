@@ -14,12 +14,10 @@ if [ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/n
     exit
 fi
 
+apt update
 
-# install python3
-dpkg -l | grep python3-picamera || apt install python3-picamera
-
-# ensure it installed correctly
-dpkg -l | grep python3-picamera || (echo "PiCamera library failed to install. Please install it manually using sudo apt install python3-picamera" && exit)
+dpkg -l | grep jq || apt install jq
+dpkg -l | grep netcat || apt install netcat
 
 
 # Safety checks
@@ -29,10 +27,10 @@ then
   # doesn't rename the pi and doesn't restart it which should allow it to not break the whole thing
 
   # make startup executable
-  chmod a+x /home/jhsrobo/Github/rpicamera/streamer/startup.sh
+  chmod a+x /home/jhsrobo/rpicamera/streamer/startup.sh
 
   # edit rc.local
-  echo -e "#!/bin/sh -e \nbash /home/jhsrobo/Github/rpicamera/streamer/main-pi-startup.sh &\nexit 0" > /etc/rc.local
+  echo -e "#!/bin/sh -e \nbash /home/jhsrobo/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
   # reboot
   echo "Setup complete, please reboot"
