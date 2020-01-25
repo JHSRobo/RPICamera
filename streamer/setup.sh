@@ -2,11 +2,6 @@
 
 # Script to be run ONCE at the first boot
 
-if [ "$(id -u)" != 0 ]
-  then echo "Please run as root"
-  exit
-fi
-
 if [ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1)" == 0 ]; then
     echo "Please connect to the internet to install PiCamera"
     exit
@@ -23,9 +18,6 @@ if [ "${USER}" == "jhsrobo" ]
 then
   # main pi setup
   # doesn't rename the pi and doesn't restart it which should allow it to not break the whole thing
-
-  # make startup executable
-  chmod a+x /home/jhsrobo/rpicamera/streamer/startup.sh
 
   # edit rc.local
   echo -e "#!/bin/sh -e \nbash /home/jhsrobo/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
@@ -48,9 +40,6 @@ else
   127.0.1.1      camera${MAC: -2}" > /etc/hosts
 
   echo "camera${MAC: -2}" > /etc/hostname
-
-  # make startup executable
-  chmod a+x /home/camera/rpicamera/streamer/startup.sh
 
   # edit rc.local
   echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
