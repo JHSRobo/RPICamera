@@ -2,7 +2,7 @@
 
 # Script to be run ONCE at the first boot
 
-if [ "$(id -u)" == 0 ]
+if [ "$(id -u)" != 0 ]
   then echo "Please run as root"
   exit
 fi
