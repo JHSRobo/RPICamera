@@ -16,9 +16,7 @@ grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 #git checkout release
 git pull
 
-# Start up camera streamer and restart it if it exits
-while true; do
-  bash streamer/raspivid.sh
-  done
+# Start up camera streamer
+bash streamer/raspivid.sh
 
 exit 0
