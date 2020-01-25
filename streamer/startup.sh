@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to be run at EVERY boot
-if [ -f "/home/camera" ]
+if test "/home/camera"
 then
    cd /home/camera/rpicamera || exit
 else
