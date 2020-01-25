@@ -8,9 +8,9 @@ else
   cd /home/jhsrobo/rpicamera || exit
 fi
 
-grep "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
+grep -q "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
 
-grep "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
+grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 
 # Attempt to pull latest repo
 #git checkout release
