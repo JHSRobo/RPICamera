@@ -1,7 +1,7 @@
 export ROTATION=0
 export WIDTH=1280
 export HEIGHT=720
-export FPS=90
+export FPS=30
 export PORT=5001
 
 # load in environment variables from config.json
