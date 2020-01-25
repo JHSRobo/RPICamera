@@ -7,11 +7,11 @@ if [ "$(EUID)" == 0 ]
   exit
 fi
 
-echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
-
 if [ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1)" == 0 ]; then
     echo "Please connect to the internet to install PiCamera"
     exit
+else
+  echo 123
 fi
 
 apt update
