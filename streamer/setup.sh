@@ -8,7 +8,7 @@ if [ "$(id -u)" != 0 ]
 fi
 
 if [ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1)" == 0 ]; then
-    echo "Please connect to the internet to install PiCamera"
+    echo "Please connect to the internet to install libraries"
     exit
 fi
 
