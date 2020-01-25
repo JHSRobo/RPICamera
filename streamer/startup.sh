@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # Script to be run at EVERY boot
+
+if [ "$(id -u)" != 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
 if test "/home/camera"
 then
    cd /home/camera/rpicamera/streamer || exit
