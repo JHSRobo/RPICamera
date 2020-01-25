@@ -51,6 +51,9 @@ else
 
   echo -e "JHSRobo\nJHSRobo" | passwd camera
 
+  cd /home/camera || exit
+  git clone https://github.com/jhsrobo/rpicamera
+
   # edit rc.local
   echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
