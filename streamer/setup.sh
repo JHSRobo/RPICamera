@@ -12,11 +12,10 @@ if [ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/n
     exit
 fi
 
-apt update
-apt upgrade
+apt update -y
 
-dpkg -l | grep jq || apt install jq
-dpkg -l | grep netcat || apt install netcat
+dpkg -l | grep jq || apt install jq -y
+dpkg -l | grep netcat || apt install netcat -y
 
 
 # Safety checks
