@@ -1,7 +1,7 @@
 export ROTATION=0
 export WIDTH=640
 export HEIGHT=480
-export FPS=60
+export FPS=30
 export PORT=5001
 
 # load in environment variables from config.json
@@ -10,7 +10,7 @@ do
   export "${output?}"
 done
 
-raspivid -n -ih --intra 10 -t 0 -rot $ROTATION -w $WIDTH -h $HEIGHT -fps $FPS -b 1000000 -o - | ncat -lkv4 $PORT
+raspivid -n -ih --intra 10 -lev 4 -br 75 -t 0 -rot $ROTATION -w $WIDTH -h $HEIGHT -fps $FPS -o - | ncat -lkv4 $PORT
 
 # -n to not show the video on the Raspberry Pi display
 # -ih to insert H.264 headers into the stream
