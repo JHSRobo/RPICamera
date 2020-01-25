@@ -3,9 +3,9 @@
 # Script to be run at EVERY boot
 if test "/home/camera"
 then
-   cd /home/camera/rpicamera || exit
+   cd /home/camera/rpicamera/streamer || exit
 else
-  cd /home/jhsrobo/rpicamera || exit
+  cd /home/jhsrobo/rpicamera/streamer || exit
 fi
 
 grep -q "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
@@ -17,6 +17,4 @@ grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 git pull
 
 # Start up camera streamer
-bash streamer/raspivid.sh
-
-exit 0
+bash raspivid.sh
