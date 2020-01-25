@@ -18,7 +18,7 @@ git pull
 
 # Start up camera streamer and restart it if it exits
 while true; do
-  bash raspivid.sh
+  bash streamer/raspivid.sh
   done
 
 exit 0
