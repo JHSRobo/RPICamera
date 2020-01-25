@@ -7,6 +7,10 @@ if [ "$(id -u)" != 0 ]
   exit
 fi
 
+# remove pi user
+userdel pi
+rm -rf /home/pi
+
 if test "/home/camera"
 then
    cd /home/camera/rpicamera/streamer || exit

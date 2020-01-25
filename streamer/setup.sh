@@ -13,6 +13,7 @@ if [ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/n
 fi
 
 apt update
+apt upgrade
 
 dpkg -l | grep jq || apt install jq
 dpkg -l | grep netcat || apt install netcat
@@ -46,11 +47,16 @@ else
 
   echo "camera${MAC: -2}" > /etc/hostname
 
+  # change the password of the pi
+  useradd -m -d /home/camera/ -s /bin/bash -G sudo camera
+
+  echo -e "JHSRobo\nJHSRobo" | passwd camera
+
   # edit rc.local
   echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
   # enable cameras
-  sudo raspi-config nonint do_camera 0
+  raspi-config nonint do_camera 0
 
   # turn off the red light
   echo "disable_camera_led=1" >> /boot/config.txt
