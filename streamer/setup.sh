@@ -61,8 +61,8 @@ else
   raspi-config nonint do_camera 0
 
   # give more memory
-  echo -e "$(sed '/gpu_mem/d' /boot/config.txt)" > /boot/config.txt
-  echo "gpu_mem=448" >> /boot/config.txt
+  #echo -e "$(sed '/gpu_mem/d' /boot/config.txt)" > /boot/config.txt
+  #echo "gpu_mem=448" >> /boot/config.txt
 
   # turn off the red light
   echo "disable_camera_led=1" >> /boot/config.txt
