@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Switcher.py
 # By Andrew Grindstaff
-# ROS Package to switch between cameras streaming to port 80/stream.mjpg
+# ROS Package to switch between cameras streaming to port 5000
 # Streamer code in streamer directory at streamer.py
 
 import cv2
@@ -54,7 +54,7 @@ class SwitchCameras:
             print "No cameras available, quitting"
             self.wait_for_cameras()
         self.num = list(self.verified.keys())[0]
-        self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
 
     def wait_for_cameras(self):
         while not self.verified:
@@ -92,7 +92,7 @@ class SwitchCameras:
 
     def change_camera(self, camera_num):
         self.num = camera_num.data
-        self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
 
     def which_camera(self):
         def ip():
@@ -115,7 +115,7 @@ class SwitchCameras:
         try:
             self.num = list(self.verified)[0]
             self.cap.release()
-            self.cap = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(self.verified[self.num]))
+            self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
         except IndexError:
             print("All cameras have failed")
 
@@ -139,7 +139,7 @@ def blank_frame(frame1):
 def verify(ip_address):
     """Verifies if an IP address is streaming to port 80"""
     try:
-        r = requests.get('http://{}:80/index.html'.format(ip_address), timeout=0.05)
+        r = requests.get('http://{}:5000'.format(ip_address), timeout=0.05)
     except requests.exceptions.RequestException:
         return False
     else:
@@ -151,12 +151,12 @@ def show_all(cameras):
     cameras = list(cameras.values())
     frame = []
     for camera in range(0, len(cameras) - 1, 1):
-        ret, frame1 = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(cameras[camera])).read()
+        ret, frame1 = cv2.VideoCapture('http://{}:5000'.format(cameras[camera])).read()
         if not ret:
             camera -= 1
             continue
         try:
-            ret, frame2 = cv2.VideoCapture('http://{}:80/stream.mjpg'.format(cameras[camera + 1])).read()
+            ret, frame2 = cv2.VideoCapture('http://{}:5000'.format(cameras[camera + 1])).read()
         except IndexError:
             frame2 = blank_frame(frame1)
         else:
