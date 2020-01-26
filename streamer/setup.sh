@@ -2,12 +2,12 @@
 
 # Script to be run ONCE at the first boot
 
-if [ "$(id -u)" != 0 ]
+if [[ "$(id -u)" != 0 ]]
   then echo "Please run as root"
   exit
 fi
 
-if [ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1)" == 0 ]; then
+if [[ "$(echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1)" == 0 ]]; then
     echo "Please connect to the internet to install libraries"
     exit
 fi
@@ -19,7 +19,7 @@ dpkg -l | grep netcat || apt install netcat -y
 
 
 # Safety checks
-if [ "${USER}" == "jhsrobo" ]
+if [[ "${USER}" == "jhsrobo" ]]
 then
   # main pi setup
   # doesn't rename the pi and doesn't restart it which should allow it to not break the whole thing
@@ -59,6 +59,10 @@ else
 
   # enable cameras
   raspi-config nonint do_camera 0
+
+  # give more memory
+  echo -e "$(sed '/gpu_mem/d' /boot/config.txt)" > /boot/config.txt
+  echo "gpu_mem=448" >> /boot/config.txt
 
   # turn off the red light
   echo "disable_camera_led=1" >> /boot/config.txt
