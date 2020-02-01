@@ -11,7 +11,7 @@ fi
 userdel pi
 rm -rf /home/pi
 
-if test "/home/camera"
+if [[ -f "/home/camera/rpicamera/streamer/raspivid.sh" ]]
 then
    cd /home/camera/rpicamera/streamer || exit
 else
