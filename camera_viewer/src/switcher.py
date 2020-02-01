@@ -10,6 +10,7 @@ import signal
 import time
 import numpy as np
 import threading
+import os
 import rospy
 from std_msgs.msg import UInt8
 
@@ -69,6 +70,8 @@ class SwitchCameras:
         verified_address = []
         current_address = self.verified.values()
         for i in range(2, 255):
+            if i == 100:
+                continue
             if '192.168.1.{}'.format(i) in current_address:
                 continue
             if verify('192.168.1.{}'.format(i)):
@@ -137,7 +140,7 @@ def blank_frame(frame1):
 
 def verify(ip_address):
     """Verifies if an IP address is streaming to port 80"""
-    return cv2.VideoCapture("http://{}:5000".format(ip_address)).read()[0]
+    return os.system("ping -c 1 " + ip_address) == 0
 
 
 def show_all(cameras):
