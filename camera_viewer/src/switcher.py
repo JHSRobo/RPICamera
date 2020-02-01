@@ -138,12 +138,7 @@ def blank_frame(frame1):
 
 def verify(ip_address):
     """Verifies if an IP address is streaming to port 80"""
-    try:
-        r = requests.get('http://{}:5000'.format(ip_address), timeout=0.05)
-    except requests.exceptions.RequestException:
-        return False
-    else:
-        return True if r.status_code == 200 else False
+    return cv2.VideoCapture("http://{}:5000".format(ip_address)).read()[0]
 
 
 def show_all(cameras):
