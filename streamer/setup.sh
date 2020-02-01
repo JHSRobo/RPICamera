@@ -44,7 +44,7 @@ then
   git clone https://github.com/jhsrobo/rpicamera
 
   # edit rc.local
-  echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
+  echo -e "#!/bin/bash -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
   # enable cameras
   raspi-config nonint do_camera 0
