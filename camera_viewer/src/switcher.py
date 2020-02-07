@@ -15,111 +15,104 @@ import rospy
 from std_msgs.msg import UInt8
 
 # NEED TO ADD SENSOR DATA
-# NEED TO ADD CONFIGURATION
 # Overlay and timer stack
 # Task specific visuals - overlay
 
 
-def read(cap, num):
-    """Purely for ease of use so the function to actually display a frame does not get lost when we inevitably want to
-    add more stuff to the frame"""
-    ret, frame = cap.read()
-    if not ret:
-        return False
-    else:
-        cv2.putText(frame, str(num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        return frame
+def load_settings():
+    verified, failed = {}, {}
+    try:
+        data = json.load(open("config.json"))
+        for index in data:
+            if verify(ip_address=data[index]):
+                verified[index] = data[index]
+            else:
+                failed[index] = data[index]
+                print 'Camera at {} failed, will try again'.format(data[index])
+    except (IOError, KeyError):
+        raise NoConfigError
+    return verified, failed
+
+
+class NoConfigError(Exception):
+    pass
+
+
+class NoCamerasError(Exception):
+    pass
 
 
 class SwitchCameras:
-    def __init__(self, killer):
-        # can't put on one line because then they reference each other
-        self.killer = killer
-        self.verified = {}
-        self.failed = {}
+    """The class for handling all the camera logic. Switches and reads the camera, adding an overlay to it"""
+    def __init__(self):
         try:
-            data = json.load(open("config.json"))
-            for index in data['ip_addresses']:
-                if verify(ip_address=data['ip_addresses'][index]):
-                    self.verified[index] = data['ip_addresses'][index]
-                else:
-                    self.failed[index] = data['ip_addresses'][index]
-            for value in self.failed:
-                print 'Camera at {} failed, will try again'.format(self.failed[value])
-        except (IOError, KeyError):
-            print "Please make config.json if you want to save settings"
+            self.verified, self.failed = load_settings()
+        except NoConfigError:
+            print "Please make config.json if you want to save camera settings"
 
-        self.find_cameras()
-        if not self.verified:
-            print "No cameras available, quitting"
-            self.wait_for_cameras()
-        self.num = list(self.verified.keys())[0]
+        self.wait()
+        self.num = self.verified.keys()[0]
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
 
-    def wait_for_cameras(self):
+    def read(self):
+        """Reads a frame from the cv2 video capture and adds the overlay to it"""
+        ret, frame = self.cap.read()
+        if not ret:
+            self.camera_failed()
+        else:
+            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            return frame
+
+    def wait(self):
+        """Waits for a camera IP to be put into verified"""
         while not self.verified:
             self.find_cameras()
 
-    def find_cameras_search(self):
-        while not self.killer.kill_now and not rospy.is_shutdown():
-            self.find_cameras()
-            time.sleep(5)
-
-    def find_cameras(self):
-        """Finds any cameras on the current networks"""
-        verified_address = []
-        current_address = self.verified.values()
-        for i in range(2, 255):
-            if i == 100:
-                continue
-            if '192.168.1.{}'.format(i) in current_address:
-                continue
-            if verify('192.168.1.{}'.format(i)):
-                verified_address.append('192.168.1.{}'.format(i))
-
-        available = []
-        for j in range(1, 8):
-            if str(j) not in self.verified:
-                available.append(j)
-
-        if available:
-            for ip in verified_address:
-                print('Camera detected at {}, added under {}'.format(ip, available[0]))
-                try:
-                    self.verified[available.pop(0)] = ip
-                except IndexError:
-                    break
-        else:
-            print("Cameras detected, but all slots filled")
-
     def change_camera(self, camera_num):
+        """rospy subscriber to change cameras"""
         self.num = camera_num.data
+        self.cap.release()
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
 
+    def find_cameras(self, e=None):
+        """
+        Finds any cameras on the current networks.
+        If e is none, it runs once otherwise e is meant to be a threading.Event
+        """
+        if e is not None:
+            if not isinstance(e, threading.Event):
+                raise TypeError("e must be a threading.Event")
+            while not e.isSet() and not rospy.is_shutdown():
+                self.find_cameras()
+                time.sleep(5)
+        else:
+            available = [x for x in range(1, 8) if str(x) not in self.verified]
+            for i in range(2, 255):
+                if i == 100 or '192.168.1.{}'.format(i) in self.verified.values():
+                    continue
+                if verify('192.168.1.{}'.format(i)):
+                    try:
+                        self.verified[available[0]] = '192.168.1.{}'.format(i)
+                        print 'Camera detected at 192.168.1.{}, added under {}'.format(i, j)
+                    except IndexError:
+                        print 'Cameras detected, but all slots are filled'
+
     def which_camera(self):
+        """rospy service - not being used"""
         def ip():
             return self.verified[self.num]
         rospy.init_node("camera_ip_server")
         s = rospy.Service('current_ip', camera_viewer.srv.current_ip, ip)
         rospy.spin()
 
-    def read(self):
-        frame = read(self.cap, self.num)
-        if frame is False:
-            self.camera_failed()
-        else:
-            return frame
-
     def camera_failed(self):
-        print("Camera at {} has failed, please switch to a different camera".format(self.verified[self.num]))
-        self.failed[self.num] = self.verified[self.num]
-        self.verified.pop(self.num, None)
+        print "Camera at {} has failed, switching to a different camera".format(self.verified[self.num])
         try:
-            self.num = list(self.verified)[0]
-            self.cap.release()
-            self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
+            self.failed[self.num] = self.verified[self.num]
+            self.verified.pop(self.num, None)
+            self.change_camera(self.verified.keys()[0])
         except IndexError:
-            print("All cameras have failed")
+            raise NoCamerasError
 
 
 class GracefulKiller:
@@ -133,11 +126,6 @@ class GracefulKiller:
         self.kill_now = True
 
 
-def blank_frame(frame1):
-    """Returns a blank frame for displaying an odd number of video streams"""
-    return np.zeros(shape=frame1.shape, dtype=np.uint8)
-
-
 def verify(ip_address):
     """Verifies if an IP address is streaming to port 80"""
     return os.system("ping -c 1 " + ip_address) == 0
@@ -145,6 +133,11 @@ def verify(ip_address):
 
 def show_all(cameras):
     """Don't use this - incomplete"""
+
+    def blank_frame(shape):
+        """Returns a blank frame for displaying an odd number of video streams"""
+        return np.zeros(shape=shape.shape, dtype=np.uint8)
+
     cameras = list(cameras.values())
     frame = []
     for camera in range(0, len(cameras) - 1, 1):
@@ -168,19 +161,21 @@ def show_all(cameras):
 
 
 def main():
-
     graceful_killer = GracefulKiller()
-    switcher = SwitchCameras(graceful_killer)
+    switcher = SwitchCameras()
 
     # ROS Setup
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
-    camera_thread = threading.Thread(target=switcher.find_cameras_search)
+    e = threading.Event()
+    camera_thread = threading.Thread(target=switcher.find_cameras, args=(e,))
     camera_thread.start()
 
     #service_thread = threading.Thread(target=switcher.which_camera)
     #service_thread.start()
+
+    switcher.wait()
 
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
@@ -189,14 +184,9 @@ def main():
         if frame is not False:
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
+    e.set()
     cv2.destroyAllWindows()
-    camera_thread.join()
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
