@@ -36,7 +36,21 @@ class SwitchCameras:
             print "Please make config.json if you want to save camera settings"
 
         self.verified = {}
-        self.wait()
+        self.num = self.cap = None
+
+    def read(self):
+        """Reads a frame from the cv2 video capture and adds the overlay to it"""
+        ret, frame = self.cap.read()
+        if not ret:
+            self.camera_failed()
+        else:
+            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            return frame
+
+    def wait(self):
+        """Waits for a camera IP to be put into verified and then assigns numbers"""
+        while not self.verified:
+            time.sleep(1)
 
         for x in self.configed:
             if x in self.verified:
@@ -52,20 +66,6 @@ class SwitchCameras:
 
         self.num = self.verified.keys()[0]
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
-
-    def read(self):
-        """Reads a frame from the cv2 video capture and adds the overlay to it"""
-        ret, frame = self.cap.read()
-        if not ret:
-            self.camera_failed()
-        else:
-            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-            return frame
-
-    def wait(self):
-        """Waits for a camera IP to be put into verified"""
-        while not self.verified:
-            time.sleep(1)
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
@@ -86,6 +86,7 @@ class SwitchCameras:
             except IndexError:
                 print 'Camera detected, but all slots are filled'
 
+        print 'Web server online'
         app.run()
 
     def which_camera(self):
@@ -160,8 +161,10 @@ def main():
     #service_thread = threading.Thread(target=switcher.which_camera)
     #service_thread.start()
 
+    print 'Waiting for cameras'
     switcher.wait()
 
+    print 'Showing'
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     while not graceful_killer.kill_now and not rospy.is_shutdown():
