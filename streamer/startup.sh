@@ -11,7 +11,7 @@ fi
 userdel pi
 rm -rf /home/pi
 
-if test "/home/camera"
+if [[ -f "/home/camera/rpicamera/streamer/raspivid.sh" ]]
 then
    cd /home/camera/rpicamera/streamer || exit
 else
@@ -23,7 +23,7 @@ grep -q "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
 grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 
 # Attempt to pull latest repo
-git checkout release
+#git checkout release
 git pull
 
 # Start up camera streamer
