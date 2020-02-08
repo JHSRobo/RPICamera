@@ -59,6 +59,7 @@ class SwitchCameras:
             num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
             self.cap.release()
             self.cap = cv2.VideoCapture('http://{}:5000'.format(num))
+            self.num = camera_num.data
         except IndexError:
             pass
 
@@ -74,7 +75,6 @@ class SwitchCameras:
             if flask.request.remote_addr not in self.verified:
                 self.verified[flask.request.remote_addr] = {}
                 try:
-                    print 'Camera detected at {}'.format(flask.request.remote_addr)
                     self.give_nums()
                 except IndexError:
                     print 'Camera detected, but all slots are filled'
