@@ -58,9 +58,6 @@ class SwitchCameras:
         for x in self.verified:
             if camera_num.data == self.verified[x]['num']:
                 self.num = x
-        print self.num
-        self.cap.release()
-        print 123
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
 
     def find_cameras(self):
