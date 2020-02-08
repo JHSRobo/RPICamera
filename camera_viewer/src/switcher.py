@@ -50,11 +50,11 @@ class SwitchCameras:
             time.sleep(1)
 
         for x in self.configed:
-            print x
             if x in self.verified:
                 self.verified[x]['num'] = self.configed[x]['num']
                 print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
 
+        print self.verified
         taken = [x['num'] for x in self.verified]
         available = [x for x in range(1, 8) if str(x) not in taken]
         for x in self.verified:
