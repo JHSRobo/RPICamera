@@ -55,8 +55,7 @@ class SwitchCameras:
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
-        for x in self.verified:
-            print self.verified[x]['num']
+        print [self.verified[x]['num'] for x in self.verified]
         if camera_num.data == 1:
             self.cap = cv2.VideoCapture('http://{}:5000'.format("192.168.1.6"))
         if camera_num.data == 2:
