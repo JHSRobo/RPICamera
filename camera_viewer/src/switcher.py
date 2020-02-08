@@ -54,11 +54,10 @@ class SwitchCameras:
                 self.verified[x]['num'] = self.configed[x]['num']
                 print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
 
-        print self.verified
         taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
         available = [x for x in range(1, 8) if str(x) not in taken]
         for x in self.verified:
-            if 'num' not in x.values():
+            if 'num' not in self.verified[x]:
                 self.verified[x]['num'] = available.pop(0)
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
 
