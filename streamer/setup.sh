@@ -17,7 +17,8 @@ apt update -y
 dpkg -l | grep jq || apt install jq -y
 dpkg -l | grep netcat || apt install netcat -y
 
-pip install requests
+dpkg -l | grep pip || apt install python-pip
+python -m pip install requests
 
 
 # Safety checks

@@ -87,7 +87,7 @@ class SwitchCameras:
                 print 'Camera detected, but all slots are filled'
 
         print 'Web server online'
-        app.run()
+        app.run(host='0.0.0.0', port=80)
 
     def which_camera(self):
         """rospy service - not being used"""
