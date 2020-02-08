@@ -30,6 +30,7 @@ class SwitchCameras:
             self.configed = json.load(open("config.json"))
         except IOError:
             print "Please make config.json if you want to save camera settings"
+            self.configed = {}
 
         self.verified = {}
         self.num = self.cap = None
