@@ -32,7 +32,7 @@ class SwitchCameras:
             print "Please make config.json if you want to save camera settings"
             self.configed = {}
 
-        self.verified = {}
+        self.verified, self.failed = {}, {}
         self.num = self.cap = None
 
     def read(self):
@@ -53,6 +53,8 @@ class SwitchCameras:
             if x in self.verified:
                 self.verified[x]['num'] = self.configed[x]['num']
                 print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
+            else:
+                self.failed[x] = self.verified[x]
 
         taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
         available = [x for x in range(1, 8) if str(x) not in taken]
