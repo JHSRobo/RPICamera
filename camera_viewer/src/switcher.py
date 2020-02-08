@@ -49,8 +49,13 @@ class SwitchCameras:
                 return
             time.sleep(1)
 
+        self.num = self.verified.keys()[0]
+        print "Loading capture"
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
+
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
+        print type(camera_num.data)
         self.num = [x for x in self.verified if camera_num.data == self.verified[x]['num']][0]
         self.cap.release()
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
@@ -91,11 +96,6 @@ class SwitchCameras:
             if 'num' not in self.verified[x]:
                 self.verified[x]['num'] = available.pop(0)
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
-
-        self.num = self.verified.keys()[0]
-        print "Loading capture"
-        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
-
 
     def which_camera(self):
         """rospy service - not being used"""
