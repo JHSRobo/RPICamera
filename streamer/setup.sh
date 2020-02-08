@@ -17,6 +17,8 @@ apt update -y
 dpkg -l | grep jq || apt install jq -y
 dpkg -l | grep netcat || apt install netcat -y
 
+pip install requests
+
 
 # Safety checks
 if [[ "${USER}" == "pi" ]]
