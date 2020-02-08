@@ -49,24 +49,6 @@ class SwitchCameras:
                 return
             time.sleep(1)
 
-        for x in self.configed:
-            if x in self.verified:
-                self.verified[x]['num'] = self.configed[x]['num']
-                print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
-            else:
-                self.failed[x] = self.verified[x]
-
-        taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
-        available = [x for x in range(1, 8) if str(x) not in taken]
-        for x in self.verified:
-            if 'num' not in self.verified[x]:
-                self.verified[x]['num'] = available.pop(0)
-                print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
-
-        self.num = self.verified.keys()[0]
-        print "Loading capture"
-        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
-
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
         self.num = [x for x in self.verified if camera_num.data == self.verified[x]['num']][0]
@@ -86,12 +68,33 @@ class SwitchCameras:
                 self.verified[flask.request.remote_addr] = {}
                 try:
                     print 'Camera detected at {}'.format(flask.request.remote_addr)
+                    self.give_nums()
                 except IndexError:
                     print 'Camera detected, but all slots are filled'
             return "go away", 200
 
         print 'Web server online'
         app.run(host='0.0.0.0', port=12345)
+
+    def give_nums(self):
+        for x in self.configed:
+            if x in self.verified:
+                self.verified[x]['num'] = self.configed[x]['num']
+                print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
+            else:
+                self.failed[x] = self.verified[x]
+
+        taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
+        available = [x for x in range(1, 8) if str(x) not in taken]
+        for x in self.verified:
+            if 'num' not in self.verified[x]:
+                self.verified[x]['num'] = available.pop(0)
+                print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
+
+        self.num = self.verified.keys()[0]
+        print "Loading capture"
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
+
 
     def which_camera(self):
         """rospy service - not being used"""
