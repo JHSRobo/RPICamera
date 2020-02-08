@@ -29,12 +29,14 @@ class SwitchCameras:
             print "Please make config.json if you want to save camera settings"
             self.configed = {}
 
+        self.caps = {}
+
         self.verified, self.failed = {}, {}
         self.num = self.cap = None
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
-        ret, frame = self.cap.read()
+        ret, frame = self.caps[self.num].read()
         if not ret:
             self.camera_failed()
         else:
@@ -49,19 +51,13 @@ class SwitchCameras:
                 return
             time.sleep(1)
 
-        self.num = self.verified.keys()[0]
+        self.num = self.caps.keys()[0]
         print "Loading capture"
-        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
-        try:
-            num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
-            self.cap.release()
-            print(num)
-            self.cap = cv2.VideoCapture('http://{}:5000'.format(num))
-        except IndexError:
-            pass
+        if camera_num.data in self.caps:
+            self.num = camera_num.data
 
     def find_cameras(self):
         """Waits for a request on port 5000"""
@@ -100,6 +96,9 @@ class SwitchCameras:
                 self.verified[x]['num'] = available.pop(0)
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
 
+        for x in self.verified:
+            self.caps[self.verified[x]['num']] = cv2.VideoCapture("http://{}:5000".format(x))
+
     def which_camera(self):
         """rospy service - not being used"""
         def ip():
@@ -113,7 +112,6 @@ class SwitchCameras:
         try:
             self.failed[self.num] = self.verified[self.num]
             self.verified.pop(self.num, None)
-            self.change_camera(self.verified.keys()[0])
         except IndexError:
             print 'No cameras available, quitting'
             raise RuntimeError("No cameras available")
