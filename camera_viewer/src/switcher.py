@@ -41,7 +41,7 @@ class SwitchCameras:
                         (255, 255, 255), 2, cv2.LINE_AA)
             return frame
 
-    def wait(self, killer):
+    def wait(self):
         """Waits for a camera IP to be put into verified and then assigns numbers"""
         while not self.verified:
             if rospy.is_shutdown():
