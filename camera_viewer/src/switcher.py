@@ -46,7 +46,7 @@ class SwitchCameras:
 
     def wait(self, killer):
         """Waits for a camera IP to be put into verified and then assigns numbers"""
-        while not self.verified:
+        while not self.caps:
             if killer.kill_now:
                 return
             time.sleep(1)
