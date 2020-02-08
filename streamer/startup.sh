@@ -28,3 +28,4 @@ git pull
 
 # Start up camera streamer
 bash raspivid.sh
+python ping.py
