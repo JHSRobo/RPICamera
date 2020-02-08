@@ -82,11 +82,12 @@ class SwitchCameras:
 
         @app.route('/')
         def page():
-            self.verified[flask.request.remote_addr] = {}
-            try:
-                print 'Camera detected at {}'.format(flask.request.remote_addr)
-            except IndexError:
-                print 'Camera detected, but all slots are filled'
+            if flask.request.remote_addr not in self.verified:
+                self.verified[flask.request.remote_addr] = {}
+                try:
+                    print 'Camera detected at {}'.format(flask.request.remote_addr)
+                except IndexError:
+                    print 'Camera detected, but all slots are filled'
             return "go away", 200
 
         print 'Web server online'
