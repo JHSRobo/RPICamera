@@ -18,6 +18,7 @@ from std_msgs.msg import UInt8
 # Overlay and timer stack
 # Task specific visuals - overlay
 
+
 class NoCamerasError(Exception):
     pass
 
@@ -68,7 +69,7 @@ class SwitchCameras:
         self.cap.release()
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
 
-    def find_cameras(self, e=None):
+    def find_cameras(self):
         """Waits for a request on port 5000"""
 
         app = flask.Flask(__name__)
@@ -80,7 +81,7 @@ class SwitchCameras:
                 print 'Camera detected at {}'.format(flask.request.remote_addr)
             except IndexError:
                 print 'Camera detected, but all slots are filled'
-            return "", 200
+            return "go away", 200
 
         print 'Web server online'
         app.run(host='0.0.0.0', port=12345)
