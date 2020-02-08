@@ -6,7 +6,6 @@
 
 import cv2
 import json
-import signal
 import time
 import numpy as np
 import threading
@@ -117,17 +116,6 @@ class SwitchCameras:
             raise RuntimeError("No cameras available")
 
 
-class GracefulKiller:
-    kill_now = False
-
-    def __init__(self):
-        signal.signal(signal.SIGINT, self.exit_gracefully)
-        signal.signal(signal.SIGTERM, self.exit_gracefully)
-
-    def exit_gracefully(self, signum, frame):
-        self.kill_now = True
-
-
 def show_all(cameras):
     """Don't use this - incomplete"""
 
@@ -158,7 +146,6 @@ def show_all(cameras):
 
 
 def main():
-    graceful_killer = GracefulKiller()
     switcher = SwitchCameras()
 
     # ROS Setup
@@ -177,7 +164,7 @@ def main():
 
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    while not graceful_killer.kill_now and not rospy.is_shutdown():
+    while not rospy.is_shutdown():
         frame = switcher.read()
         if frame is not False:
             cv2.imshow('Camera Feed', frame)
