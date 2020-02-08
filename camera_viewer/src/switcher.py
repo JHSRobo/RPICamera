@@ -40,7 +40,7 @@ class SwitchCameras:
         if not ret:
             self.camera_failed()
         else:
-            cv2.putText(frame, str(self.verified[self.num]['num']), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,
+            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,
                         (255, 255, 255), 2, cv2.LINE_AA)
             return frame
 
