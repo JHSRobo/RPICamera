@@ -84,6 +84,7 @@ class SwitchCameras:
             else:
                 self.failed[x] = self.verified[x]
 
+        print self.verified
         taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
         available = [x for x in range(1, 8) if str(x) not in taken]
         for x in self.verified:
