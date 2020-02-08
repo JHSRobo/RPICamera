@@ -104,7 +104,6 @@ class SwitchCameras:
         except IndexError:
             print 'No cameras available, quitting'
             raise RuntimeError("No cameras available")
-            sys.exit(1)
 
 
 class GracefulKiller:
@@ -156,6 +155,7 @@ def main():
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
     camera_thread = threading.Thread(target=switcher.find_cameras)
+    camera_thread.setDaemon()
     camera_thread.start()
 
     #service_thread = threading.Thread(target=switcher.which_camera)
@@ -172,7 +172,6 @@ def main():
         if frame is not False:
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
-    camera_thread.join()
     cv2.destroyAllWindows()
 
 
