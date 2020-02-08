@@ -65,7 +65,6 @@ class SwitchCameras:
 
         self.num = self.verified.keys()[0]
         print "Loading capture"
-        print self.num
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
 
     def change_camera(self, camera_num):
