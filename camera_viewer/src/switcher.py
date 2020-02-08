@@ -56,8 +56,10 @@ class SwitchCameras:
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
+        print "Changing camera"
         if camera_num.data in self.caps:
             self.num = camera_num.data
+            print self.num
 
     def find_cameras(self):
         """Waits for a request on port 5000"""
