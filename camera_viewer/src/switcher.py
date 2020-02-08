@@ -85,6 +85,7 @@ class SwitchCameras:
                 print 'Camera detected at {}, added under {}'.format(flask.request.remote_addr, available.pop(0))
             except IndexError:
                 print 'Camera detected, but all slots are filled'
+            return ""
 
         print 'Web server online'
         app.run(host='0.0.0.0', port=12345)
