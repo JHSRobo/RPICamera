@@ -44,7 +44,7 @@ class SwitchCameras:
     def wait(self, killer):
         """Waits for a camera IP to be put into verified and then assigns numbers"""
         while not self.verified:
-            if killer.kill_now:
+            if rospy.is_shutdown():
                 return
             time.sleep(1)
 
@@ -160,7 +160,7 @@ def main():
     #service_thread.start()
 
     print 'Waiting for cameras'
-    switcher.wait(graceful_killer)
+    switcher.wait()
 
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
