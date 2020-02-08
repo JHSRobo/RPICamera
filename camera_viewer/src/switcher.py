@@ -56,8 +56,9 @@ class SwitchCameras:
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
         try:
-            self.cap = cv2.VideoCapture('http://{}:5000'.format([x for x in self.verified if self.verified[x]['num'] ==
-                                                                 camera_num.data][0]))
+            num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
+            self.cap.release()
+            self.cap = cv2.VideoCapture('http://{}:5000'.format(num))
         except IndexError:
             pass
 
