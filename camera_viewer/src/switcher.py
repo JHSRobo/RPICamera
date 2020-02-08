@@ -10,28 +10,13 @@ import signal
 import time
 import numpy as np
 import threading
-import os
+import flask
 import rospy
 from std_msgs.msg import UInt8
 
 # NEED TO ADD SENSOR DATA
 # Overlay and timer stack
 # Task specific visuals - overlay
-
-
-def load_settings():
-    verified, failed = {}, {}
-    try:
-        data = json.load(open("config.json"))
-        for index in data:
-            if verify(ip_address=data[index]):
-                verified[index] = data[index]
-            else:
-                failed[index] = data[index]
-                print 'Camera at {} failed, will try again'.format(data[index])
-    except (IOError, KeyError):
-        raise NoConfigError
-    return verified, failed
 
 
 class NoConfigError(Exception):
@@ -46,11 +31,25 @@ class SwitchCameras:
     """The class for handling all the camera logic. Switches and reads the camera, adding an overlay to it"""
     def __init__(self):
         try:
-            self.verified, self.failed = load_settings()
+            self.configed = json.load(open("config.json"))
         except NoConfigError:
             print "Please make config.json if you want to save camera settings"
 
+        self.verified = {}
         self.wait()
+
+        for x in self.configed:
+            if x in self.verified:
+                self.verified[x]['num'] = self.configed[x]['num']
+                print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
+
+        taken = [x['num'] for x in self.verified]
+        available = [x for x in range(1, 8) if str(x) not in taken]
+        for x in self.verified:
+            if 'num' not in x.values():
+                self.verified[x]['num'] = available.pop(0)
+                print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
+
         self.num = self.verified.keys()[0]
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
 
@@ -66,7 +65,7 @@ class SwitchCameras:
     def wait(self):
         """Waits for a camera IP to be put into verified"""
         while not self.verified:
-            self.find_cameras()
+            time.sleep(1)
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
@@ -75,27 +74,19 @@ class SwitchCameras:
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
 
     def find_cameras(self, e=None):
-        """
-        Finds any cameras on the current networks.
-        If e is none, it runs once otherwise e is meant to be a threading.Event
-        """
-        if e is not None:
-            if not isinstance(e, threading.Event):
-                raise TypeError("e must be a threading.Event")
-            while not e.isSet() and not rospy.is_shutdown():
-                self.find_cameras()
-                time.sleep(5)
-        else:
-            available = [x for x in range(1, 8) if str(x) not in self.verified]
-            for i in range(2, 255):
-                if i == 100 or '192.168.1.{}'.format(i) in self.verified.values():
-                    continue
-                if verify('192.168.1.{}'.format(i)):
-                    try:
-                        self.verified[available[0]] = '192.168.1.{}'.format(i)
-                        print 'Camera detected at 192.168.1.{}, added under {}'.format(i, j)
-                    except IndexError:
-                        print 'Cameras detected, but all slots are filled'
+        """Waits for a request on port 5000"""
+
+        app = flask.Flask(__name__)
+
+        @app.route('/')
+        def page():
+            self.verified[flask.request.remote_addr] = {}
+            try:
+                print 'Camera detected at {}, added under {}'.format(flask.request.remote_addr, available.pop(0))
+            except IndexError:
+                print 'Camera detected, but all slots are filled'
+
+        app.run()
 
     def which_camera(self):
         """rospy service - not being used"""
@@ -124,11 +115,6 @@ class GracefulKiller:
 
     def exit_gracefully(self, signum, frame):
         self.kill_now = True
-
-
-def verify(ip_address):
-    """Verifies if an IP address is streaming to port 80"""
-    return os.system("ping -c 1 " + ip_address) == 0
 
 
 def show_all(cameras):
@@ -168,8 +154,7 @@ def main():
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
-    e = threading.Event()
-    camera_thread = threading.Thread(target=switcher.find_cameras, args=(e,))
+    camera_thread = threading.Thread(target=switcher.find_cameras)
     camera_thread.start()
 
     #service_thread = threading.Thread(target=switcher.which_camera)
@@ -184,7 +169,6 @@ def main():
         if frame is not False:
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
-    e.set()
     cv2.destroyAllWindows()
 
 
