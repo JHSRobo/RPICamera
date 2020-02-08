@@ -11,7 +11,7 @@ import time
 import numpy as np
 import threading
 import flask
-import sys
+import logging
 import rospy
 from std_msgs.msg import UInt8
 
@@ -76,6 +76,8 @@ class SwitchCameras:
     def find_cameras(self):
         """Waits for a request on port 5000"""
 
+        log = logging.getLogger("werkzeug")
+        log.setLevel(logging.ERROR)
         app = flask.Flask(__name__)
 
         @app.route('/')
