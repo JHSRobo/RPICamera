@@ -98,6 +98,7 @@ class SwitchCameras:
             if 'num' not in self.verified[x]:
                 self.verified[x]['num'] = available.pop(0)
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
+        print self.verified
 
         for x in self.verified:
             self.caps[self.verified[x]['num']] = cv2.VideoCapture("http://{}:5000".format(x))
