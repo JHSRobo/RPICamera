@@ -58,7 +58,6 @@ class SwitchCameras:
         try:
             num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
             self.cap.release()
-            print(num)
             self.cap = cv2.VideoCapture('http://{}:5000'.format(num))
         except IndexError:
             pass
@@ -92,7 +91,6 @@ class SwitchCameras:
             else:
                 self.failed[x] = self.verified[x]
 
-        print self.verified
         taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
         available = [x for x in range(1, 8) if x not in taken]
         for x in self.verified:
