@@ -42,9 +42,11 @@ class SwitchCameras:
                         (255, 255, 255), 2, cv2.LINE_AA)
             return frame
 
-    def wait(self):
+    def wait(self, killer):
         """Waits for a camera IP to be put into verified and then assigns numbers"""
         while not self.verified:
+            if killer.kill_now:
+                return
             time.sleep(1)
 
         for x in self.configed:
@@ -162,7 +164,7 @@ def main():
     #service_thread.start()
 
     print 'Waiting for cameras'
-    switcher.wait()
+    switcher.wait(graceful_killer)
 
     print 'Showing'
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
