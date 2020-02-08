@@ -18,11 +18,6 @@ from std_msgs.msg import UInt8
 # Overlay and timer stack
 # Task specific visuals - overlay
 
-
-class NoConfigError(Exception):
-    pass
-
-
 class NoCamerasError(Exception):
     pass
 
@@ -32,7 +27,7 @@ class SwitchCameras:
     def __init__(self):
         try:
             self.configed = json.load(open("config.json"))
-        except NoConfigError:
+        except IOError:
             print "Please make config.json if you want to save camera settings"
 
         self.verified = {}
