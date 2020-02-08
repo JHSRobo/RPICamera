@@ -155,7 +155,7 @@ def main():
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
     camera_thread = threading.Thread(target=switcher.find_cameras)
-    camera_thread.setDaemon()
+    camera_thread.setDaemon(True)
     camera_thread.start()
 
     #service_thread = threading.Thread(target=switcher.which_camera)
