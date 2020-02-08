@@ -175,7 +175,6 @@ def main():
     print 'Waiting for cameras'
     switcher.wait(graceful_killer)
 
-    print 'Showing'
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     while not graceful_killer.kill_now and not rospy.is_shutdown():
