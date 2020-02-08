@@ -29,38 +29,39 @@ class SwitchCameras:
             print "Please make config.json if you want to save camera settings"
             self.configed = {}
 
-        self.caps = {}
-
         self.verified, self.failed = {}, {}
         self.num = self.cap = None
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
-        ret, frame = self.caps[self.num].read()
+        ret, frame = self.cap.read()
         if not ret:
             self.camera_failed()
         else:
-            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,
+            cv2.putText(frame, str(self.verified[self.num]['num']), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,
                         (255, 255, 255), 2, cv2.LINE_AA)
             return frame
 
     def wait(self, killer):
         """Waits for a camera IP to be put into verified and then assigns numbers"""
-        while not self.caps:
+        while not self.verified:
             if killer.kill_now:
                 return
             time.sleep(1)
 
-        self.num = self.caps.keys()[0]
+        self.num = self.verified.keys()[0]
         print "Loading capture"
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
-        print "Changing camera"
-        print self.caps
-        if camera_num.data in self.caps:
-            self.num = camera_num.data
-            print self.num
+        try:
+            num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
+            self.cap.release()
+            print(num)
+            self.cap = cv2.VideoCapture('http://{}:5000'.format(num))
+        except IndexError:
+            pass
 
     def find_cameras(self):
         """Waits for a request on port 5000"""
@@ -98,10 +99,6 @@ class SwitchCameras:
             if 'num' not in self.verified[x]:
                 self.verified[x]['num'] = available.pop(0)
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
-        print self.verified
-
-        for x in self.verified:
-            self.caps[self.verified[x]['num']] = cv2.VideoCapture("http://{}:5000".format(x))
 
     def which_camera(self):
         """rospy service - not being used"""
@@ -116,6 +113,7 @@ class SwitchCameras:
         try:
             self.failed[self.num] = self.verified[self.num]
             self.verified.pop(self.num, None)
+            self.change_camera(self.verified.keys()[0])
         except IndexError:
             print 'No cameras available, quitting'
             raise RuntimeError("No cameras available")
