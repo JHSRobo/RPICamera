@@ -82,10 +82,10 @@ class SwitchCameras:
         def page():
             self.verified[flask.request.remote_addr] = {}
             try:
-                print 'Camera detected at {}, added under {}'.format(flask.request.remote_addr, available.pop(0))
+                print 'Camera detected at {}'.format(flask.request.remote_addr)
             except IndexError:
                 print 'Camera detected, but all slots are filled'
-            return ""
+            return "", 200
 
         print 'Web server online'
         app.run(host='0.0.0.0', port=12345)
@@ -173,6 +173,7 @@ def main():
         if frame is not False:
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
+    camera_thread.join()
     cv2.destroyAllWindows()
 
 
