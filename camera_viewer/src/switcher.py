@@ -11,6 +11,7 @@ import time
 import numpy as np
 import threading
 import flask
+import sys
 import rospy
 from std_msgs.msg import UInt8
 
@@ -37,7 +38,8 @@ class SwitchCameras:
         if not ret:
             self.camera_failed()
         else:
-            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, str(self.verified[self.num]['num']), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        (255, 255, 255), 2, cv2.LINE_AA)
             return frame
 
     def wait(self):
@@ -60,13 +62,13 @@ class SwitchCameras:
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
 
         self.num = self.verified.keys()[0]
-        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
-        self.num = camera_num.data
+        self.num = [x for x in self.verified if camera_num.data == self.verified[x]['num']][0]
         self.cap.release()
-        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.num]))
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num)
 
     def find_cameras(self):
         """Waits for a request on port 5000"""
@@ -94,7 +96,7 @@ class SwitchCameras:
         rospy.spin()
 
     def camera_failed(self):
-        print "Camera at {} has failed, switching to a different camera".format(self.verified[self.num])
+        print "Camera {} has failed, switching to a different camera".format(self.verified[self.num]['num'])
         try:
             self.failed[self.num] = self.verified[self.num]
             self.verified.pop(self.num, None)
@@ -102,6 +104,7 @@ class SwitchCameras:
         except IndexError:
             print 'No cameras available, quitting'
             raise RuntimeError("No cameras available")
+            sys.exit(1)
 
 
 class GracefulKiller:
