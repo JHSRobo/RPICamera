@@ -19,10 +19,6 @@ from std_msgs.msg import UInt8
 # Task specific visuals - overlay
 
 
-class NoCamerasError(Exception):
-    pass
-
-
 class SwitchCameras:
     """The class for handling all the camera logic. Switches and reads the camera, adding an overlay to it"""
     def __init__(self):
@@ -104,7 +100,8 @@ class SwitchCameras:
             self.verified.pop(self.num, None)
             self.change_camera(self.verified.keys()[0])
         except IndexError:
-            raise NoCamerasError
+            print 'No cameras available, quitting'
+            raise RuntimeError("No cameras available")
 
 
 class GracefulKiller:
