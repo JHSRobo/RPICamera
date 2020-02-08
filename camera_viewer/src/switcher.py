@@ -55,7 +55,11 @@ class SwitchCameras:
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
-        self.cap = cv2.VideoCapture('http://{}:5000'.format([x  for x in self.verified if self.verified[x]['num'] == camera_num.data][0]))
+        try:
+            self.cap = cv2.VideoCapture('http://{}:5000'.format([x for x in self.verified if self.verified[x]['num'] ==
+                                                                 camera_num.data][0]))
+        except IndexError:
+            pass
 
     def find_cameras(self):
         """Waits for a request on port 5000"""
