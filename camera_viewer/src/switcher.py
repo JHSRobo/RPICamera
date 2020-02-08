@@ -57,6 +57,7 @@ class SwitchCameras:
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
         print "Changing camera"
+        print self.caps
         if camera_num.data in self.caps:
             self.num = camera_num.data
             print self.num
