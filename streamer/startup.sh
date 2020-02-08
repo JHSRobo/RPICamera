@@ -27,5 +27,5 @@ grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 git pull
 
 # Start up camera streamer
-bash raspivid.sh
-python ping.py
+bash raspivid.sh &
+python ping.py &
