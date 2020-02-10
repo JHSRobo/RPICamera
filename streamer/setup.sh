@@ -15,23 +15,15 @@ fi
 apt update -y
 
 dpkg -l | grep jq || apt install jq -y
-dpkg -l | grep netcat || apt install netcat -y
+dpkg -l | grep ncat || apt install ncat -y
+
+dpkg -l | grep pip || apt install python-pip -y
+python -m pip install requests
 
 
 # Safety checks
-if [[ "${USER}" == "jhsrobo" ]]
+if [[ "${USER}" == "pi" ]]
 then
-  # main pi setup
-  # doesn't rename the pi and doesn't restart it which should allow it to not break the whole thing
-
-  # edit rc.local
-  echo -e "#!/bin/sh -e \nbash /home/jhsrobo/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
-
-  # reboot
-  echo "Setup complete, please reboot"
-  echo "#Setup" >> /etc/rc.local
-  exit
-else
   #setup for all of the camera modules
 
   # rename the pi to camera and the last 2 digits of the mac address
@@ -55,7 +47,7 @@ else
   git clone https://github.com/jhsrobo/rpicamera
 
   # edit rc.local
-  echo -e "#!/bin/sh -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
+  echo -e "#!/bin/bash -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
   # enable cameras
   raspi-config nonint do_camera 0
@@ -70,4 +62,16 @@ else
   # reboot
   echo "#Setup" >> /etc/rc.local
   reboot now
+else
+  # main pi setup
+  # doesn't rename the pi and doesn't restart it which should allow it to not break the whole thing
+
+  # edit rc.local
+  echo -e "#!/bin/sh -e \nbash /home/jhsrobo/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
+
+  # reboot
+  echo "Setup complete, please reboot"
+  echo "#Setup" >> /etc/rc.local
+  exit
+
 fi
