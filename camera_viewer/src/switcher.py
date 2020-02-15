@@ -115,7 +115,7 @@ class SwitchCameras:
         try:
             self.failed[self.num] = self.verified[self.num]
             self.verified.pop(self.num, None)
-            self.change_camera(self.verified.keys()[0])
+            #self.change_camera(self.verified.keys()[0])
         except IndexError:
             print 'No cameras available, quitting'
             raise RuntimeError("No cameras available")
