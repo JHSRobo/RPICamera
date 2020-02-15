@@ -38,6 +38,7 @@ class SwitchCameras:
             self.cap.release()
             self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
             time.sleep(5)
+            self.change = False
         ret, frame = self.cap.read()
         if not ret:
             self.camera_failed()
