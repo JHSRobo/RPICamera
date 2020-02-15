@@ -30,9 +30,13 @@ class SwitchCameras:
 
         self.verified, self.failed = {}, {}
         self.num = self.cap = None
+        self.change = False
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
+        if self.change:
+            self.cap.release()
+            self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
         ret, frame = self.cap.read()
         if not ret:
             self.camera_failed()
@@ -54,13 +58,9 @@ class SwitchCameras:
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
-        try:
-            num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
-            self.cap.release()
-            self.cap = cv2.VideoCapture('http://{}:5000'.format(num))
+        if [x for x in self.verified if self.verified[x]['num'] == camera_num.data]:
+            self.change = True
             self.num = camera_num.data
-        except IndexError:
-            pass
 
     def find_cameras(self):
         """Waits for a request on port 5000"""
