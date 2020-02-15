@@ -59,9 +59,12 @@ class SwitchCameras:
 
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
-        if [x for x in self.verified if self.verified[x]['num'] == camera_num.data]:
+        try:
+            num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
             self.change = True
-            self.num = camera_num.data
+            self.num = num
+        except IndexError:
+            pass
 
     def find_cameras(self):
         """Waits for a request on port 5000"""
