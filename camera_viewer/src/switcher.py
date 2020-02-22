@@ -39,6 +39,8 @@ class SwitchCameras:
             self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
             self.change = False
         ret, frame = self.cap.read()
+        if frame is None:
+            self.change = True
         if ret is None or frame is None:
             return False
         cv2.putText(frame, self.num, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,(255, 255, 255), 2, cv2.LINE_AA)
