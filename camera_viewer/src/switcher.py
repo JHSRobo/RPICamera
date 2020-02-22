@@ -99,11 +99,13 @@ class SwitchCameras:
 
         taken = [self.verified[x]['num'] for x in self.verified[num]]
         available = [x for x in range(1, 8) if x not in taken]
+        print taken
         try:
             self.verified[num]['num'] = available[0]
             print 'Camera at {}, added under {}'.format(num, self.verified[num]['num'])
         except IndexError:
             print "Camera detected, but all slots filled"
+        print self.verified[num]
 
     def record(self, req):
 
