@@ -86,7 +86,6 @@ class SwitchCameras:
 
     def give_nums(self):
         for x in self.configed:
-            print 123
             if x in self.verified:
                 self.verified[x]['num'] = self.configed[x]['num']
                 print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
@@ -99,7 +98,6 @@ class SwitchCameras:
             if 'num' not in self.verified[x]:
                 self.verified[x]['num'] = available.pop(0)
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
-        print self.verified
 
     def which_camera(self):
         """rospy service - not being used"""
