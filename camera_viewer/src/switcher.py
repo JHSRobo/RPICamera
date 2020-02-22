@@ -5,12 +5,12 @@
 # Streamer code in streamer directory at streamer.py
 
 import cv2
-from json import load
-from time import sleep
-from datetime import datetime
+import json
+import time
 import numpy as np
-from threading import Thread
-from flask import request, Flask
+import threading
+import flask
+import logging
 import rospy
 from std_msgs.msg import UInt8
 
@@ -23,7 +23,7 @@ class SwitchCameras:
     """The class for handling all the camera logic. Switches and reads the camera, adding an overlay to it"""
     def __init__(self):
         try:
-            self.configed = load(open("config.json"))
+            self.configed = json.load(open("config.json"))
         except IOError:
             print "Please make config.json if you want to save camera settings"
             self.configed = {}
@@ -44,22 +44,12 @@ class SwitchCameras:
         cv2.putText(frame, self.num, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,(255, 255, 255), 2, cv2.LINE_AA)
         return frame
 
-    def screenshot(self):
-        """Takes a screenshot and saves it to the ~/Screenshots/CurrentTime.jpg"""
-        frame = self.read()
-        counter = 0
-        while not frame and counter < 5:
-            counter += 1
-            frame = self.read()
-
-        return cv2.imwrite("~/Screenshots/{}.jpg".format(datetime.now().strftime('%d/%m/%Y-%H:%M:%S')), frame)
-
     def wait(self):
         """Waits for a camera IP to be put into verified and then assigns numbers"""
         while not self.verified:
             if rospy.is_shutdown():
                 return
-            sleep(1)
+            time.sleep(1)
 
         self.num = self.verified.keys()[0]
         print "Loading capture"
@@ -77,12 +67,14 @@ class SwitchCameras:
     def find_cameras(self):
         """Waits for a request on port 5000"""
 
-        app = Flask(__name__)
+        log = logging.getLogger("werkzeug")
+        log.setLevel(logging.ERROR)
+        app = flask.Flask(__name__)
 
         @app.route('/')
         def page():
-            if request.remote_addr not in self.verified:
-                self.verified[request.remote_addr] = {}
+            if flask.request.remote_addr not in self.verified:
+                self.verified[flask.request.remote_addr] = {}
                 try:
                     self.give_nums()
                 except IndexError:
@@ -92,24 +84,39 @@ class SwitchCameras:
         print 'Web server online'
         app.run(host='0.0.0.0', port=12345)
 
-    def give_num(self, num):
-        if num in self.configed:
-            self.verified[num] = self.configed[num]
+    def give_nums(self):
+        for x in self.configed:
+            if x in self.verified:
+                self.verified[x]['num'] = self.configed[x]['num']
+                print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
+            else:
+                self.failed[x] = self.verified[x]
 
-        taken = [self.verified[x]['num'] for x in self.verified[num]]
+        taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
         available = [x for x in range(1, 8) if x not in taken]
+        for x in self.verified:
+            if 'num' not in self.verified[x]:
+                self.verified[x]['num'] = available.pop(0)
+                print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
+
+    def which_camera(self):
+        """rospy service - not being used"""
+        def ip():
+            return self.verified[self.num]
+        rospy.init_node("camera_ip_server")
+        s = rospy.Service('current_ip', camera_viewer.srv.current_ip, ip)
+        rospy.spin()
+
+    def camera_failed(self):
+        print "Camera {} has failed, switching to a different camera".format(self.verified[self.num]['num'])
         try:
-            self.verified[num]['num'] = available[0]
-            print 'Camera at {}, added under {}'.format(num, self.verified[num]['num'])
+            self.failed[self.num] = self.verified[self.num]
+            self.verified.pop(self.num, None)
+            #self.change_camera(self.verified.keys()[0])
         except IndexError:
-            print "Camera detected, but all slots filled"
+            print 'No cameras available, quitting'
+            raise RuntimeError("No cameras available")
 
-    def record(self, req):
-
-        if req.bool:
-            recording = True
-        else:
-            recording = False
 
 def show_all(cameras):
     """Don't use this - incomplete"""
@@ -147,12 +154,12 @@ def main():
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
-    #rospy.Service('screenshot', camer_viewer.srv.screenshot, switcher.screenshot)
-    #rospy.Service('toggle_recording', camera_viewer.srv.toggle_recording, switcher.record)
+    camera_thread = threading.Thread(target=switcher.find_cameras)
+    camera_thread.setDaemon(True)
+    camera_thread.start()
 
-    switcher_thread = Thread(target=switcher.find_cameras)
-    switcher_thread.setDaemon(True)
-    switcher_thread.start()
+    #service_thread = threading.Thread(target=switcher.which_camera)
+    #service_thread.start()
 
     print 'Waiting for cameras'
     switcher.wait()
