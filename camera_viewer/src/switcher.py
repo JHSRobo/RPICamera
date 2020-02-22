@@ -98,6 +98,7 @@ class SwitchCameras:
             if 'num' not in self.verified[x]:
                 self.verified[x]['num'] = available.pop(0)
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
+        print self.verified
 
     def which_camera(self):
         """rospy service - not being used"""
