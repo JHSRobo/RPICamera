@@ -99,7 +99,7 @@ class SwitchCameras:
 
         taken = [self.verified[x]['num'] for x in self.verified]
         print taken
-        print 123
+        print "123"
         available = [x for x in range(1, 8) if x not in taken]
         print available
         try:
