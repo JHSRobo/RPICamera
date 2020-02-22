@@ -98,6 +98,7 @@ class SwitchCameras:
             self.verified[num] = self.configed[num]
 
         taken = [self.verified[x]['num'] for x in self.verified[num]]
+        print taken
         available = [x for x in range(1, 8) if x not in taken]
         try:
             self.verified[num]['num'] = available[0]
@@ -106,7 +107,6 @@ class SwitchCameras:
             print "Camera detected, but all slots filled"
 
     def record(self, req):
-
         if req.bool:
             recording = True
         else:
