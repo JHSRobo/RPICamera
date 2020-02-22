@@ -85,7 +85,7 @@ class SwitchCameras:
             if request.remote_addr not in self.verified:
                 self.verified[request.remote_addr] = {}
                 try:
-                    self.give_num()
+                    self.give_num(request.remote_addr)
                 except IndexError:
                     print 'Camera detected, but all slots are filled'
             return "go away", 200
