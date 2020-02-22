@@ -148,8 +148,8 @@ def main():
     rospy.init_node('pilot_page')
     rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
-    rospy.Service('screenshot', camer_viewer.srv.screenshot, switcher.screenshot)
-    rospy.Service('toggle_recording', camera_viewer.srv.toggle_recording, switcher.record)
+    #rospy.Service('screenshot', camer_viewer.srv.screenshot, switcher.screenshot)
+    #rospy.Service('toggle_recording', camera_viewer.srv.toggle_recording, switcher.record)
 
     switcher_thread = Thread(target=switcher.find_cameras)
     switcher_thread.setDaemon(True)
