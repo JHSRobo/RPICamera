@@ -14,12 +14,8 @@ fi
 
 apt update -y
 
-dpkg -l | grep jq || apt install jq -y
 dpkg -l | grep ncat || apt install ncat -y
 dpkg -l | grep nmap || apt install nmap -y
-
-dpkg -l | grep pip || apt install python-pip -y
-python -m pip install requests
 
 
 # Safety checks
