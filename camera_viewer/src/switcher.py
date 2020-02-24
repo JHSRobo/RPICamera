@@ -7,6 +7,8 @@
 import cv2
 import json
 import time
+import datetime
+from cv_bridge import CvBridge
 import numpy as np
 import threading
 import flask
@@ -28,6 +30,7 @@ class SwitchCameras:
             print "Please make config.json if you want to save camera settings"
             self.configed = {}
 
+        self.bridge = CvBridge()
         self.verified, self.failed = {}, {}
         self.num = self.cap = None
         self.change = False
@@ -43,6 +46,18 @@ class SwitchCameras:
             return False
         cv2.putText(frame, self.num, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,(255, 255, 255), 2, cv2.LINE_AA)
         return frame
+
+    def screenshot(self):
+        """Returns a screenshot"""
+        frame = self.read()
+        counter = 0
+        while not frame:
+            counter += 1
+            frame = self.read()
+            if counter == 5:
+                break
+        else:
+            return self.bridge.cv2_to_imgmsg(frame, encoding="passthrough")
 
     def wait(self):
         """Waits for a camera IP to be put into verified and then assigns numbers"""
@@ -160,6 +175,9 @@ def main():
 
     #service_thread = threading.Thread(target=switcher.which_camera)
     #service_thread.start()
+
+    screenshot_thread = threading.Thread(target=switcher.screenshot)
+    screenshot_thread.start()
 
     print 'Waiting for cameras'
     switcher.wait()
