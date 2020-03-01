@@ -14,11 +14,8 @@ fi
 
 apt update -y
 
-dpkg -l | grep jq || apt install jq -y
 dpkg -l | grep ncat || apt install ncat -y
-
-dpkg -l | grep pip || apt install python-pip -y
-python -m pip install requests
+dpkg -l | grep nmap || apt install nmap -y
 
 
 # Safety checks
@@ -56,7 +53,7 @@ else
   # doesn't rename the pi and doesn't restart it which should allow it to not break the whole thing
 
   # edit rc.local
-  echo -e "#!/bin/sh -e \nbash /home/jhsrobo/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
+  echo -e "@reboot bash /home/jhsrobo/rpicamera/streamer/startup.sh" > /var/spool/cron/crontabs/root
 
   # reboot
   echo "Setup complete, please reboot"

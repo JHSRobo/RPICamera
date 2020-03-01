@@ -8,8 +8,12 @@ if [[ "$(id -u)" != 0 ]]
 fi
 
 # remove pi user
-userdel pi
-rm -rf /home/pi
+id -u pi
+if [ $? != 1 ]
+  then
+    userdel pi
+    rm -rf /home/pi
+fi
 
 if [[ -f "/home/camera/rpicamera/streamer/raspivid.sh" ]]
 then
@@ -30,4 +34,4 @@ git pull
 
 # Start up camera streamer
 bash raspivid.sh &
-python ping.py &
+bash ping.sh &

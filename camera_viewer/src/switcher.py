@@ -39,7 +39,9 @@ class SwitchCameras:
             self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
             self.change = False
         ret, frame = self.cap.read()
-        if ret is None:
+        if frame is None:
+            self.change = True
+        if ret is None or frame is None:
             return False
         cv2.putText(frame, self.num, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,(255, 255, 255), 2, cv2.LINE_AA)
         return frame
@@ -58,6 +60,8 @@ class SwitchCameras:
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
         try:
+            if self.num == camera_num.data:
+                return
             num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
             self.change = True
             self.num = num
