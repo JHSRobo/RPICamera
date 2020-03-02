@@ -23,10 +23,10 @@ class SwitchCameras:
     """The class for handling all the camera logic. Switches and reads the camera, adding an overlay to it"""
     def __init__(self):
         try:
-            self.configed = json.load(open("config.json"))
+            self.config = json.load(open("config.json"))
         except IOError:
             print "Please make config.json if you want to save camera settings"
-            self.configed = {}
+            self.config = {}
 
         self.verified, self.failed = {}, {}
         self.num = self.cap = None
@@ -43,7 +43,7 @@ class SwitchCameras:
             self.change = True
         if ret is None or frame is None:
             return False
-        cv2.putText(frame, self.num, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1,(255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, self.num, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         return frame
 
     def wait(self):
@@ -87,10 +87,10 @@ class SwitchCameras:
         app.run(host='0.0.0.0', port=12345)
 
     def give_nums(self):
-        for x in self.configed:
+        for x in self.config:
             if x in self.verified:
-                self.verified[x]['num'] = self.configed[x]['num']
-                print 'Camera at {}, added under {}'.format(x, self.configed[x]['num'])
+                self.verified[x]['num'] = self.config[x]['num']
+                print 'Camera at {}, added under {}'.format(x, self.config[x]['num'])
             else:
                 self.failed[x] = self.verified[x]
 
