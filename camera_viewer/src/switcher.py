@@ -60,6 +60,8 @@ class SwitchCameras:
     def change_camera(self, camera_num):
         """rospy subscriber to change cameras"""
         try:
+            if self.num == camera_num.data:
+                return
             num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
             self.change = True
             self.num = num
