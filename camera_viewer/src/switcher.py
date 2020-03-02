@@ -33,9 +33,10 @@ class SwitchCameras:
         self.rate = rospy.Rate(10)
         self.bridge = CvBridge()
 
-        self.verified, self.failed = {}, {}
-        self.num, self.cap = None, None
-        self.change, self.frame = False, False
+        self.verified = {}
+        self.num = -1
+        self.change = False
+        self.frame, self.cap = None, None
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
@@ -60,6 +61,7 @@ class SwitchCameras:
                 return
             time.sleep(1)
 
+        self.num = self.verified[self.verified.keys()[0]]['num']
         print "Loading capture from camera {}".format(self.num)
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
 
@@ -100,16 +102,19 @@ class SwitchCameras:
             available = [x for x in range(1, 8) if x not in taken][0]
             self.verified[ip]['num'] = available
         print 'Camera at {}, added under {}'.format(ip, self.verified[ip]['num'])
-        if self.num is False:
+        if self.num == -1:
             self.num = self.verified[ip]['num']
             print 'Camera number is {}'.format(self.verified[ip]['num'])
 
-    def relay(self, pub, rate):
+    def relay(self):
         """Relay to publish the image -- should work well but IDRK"""
         time.sleep(2)
         while not rospy.is_shutdown():
-            pub.publish(self.bridge.cv2_to_img_msg(self.frame))
-            rate.sleep()
+            if self.frame is not None:
+                self.pub.publish(self.bridge.cv2_to_img_msg(self.frame))
+                self.rate.sleep()
+            else:
+                self.rate.sleep()
 
 
 def main():
