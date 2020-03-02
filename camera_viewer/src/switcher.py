@@ -47,7 +47,8 @@ class SwitchCameras:
         ret, frame = self.cap.read()
         if frame is None:
             self.change = True
-        if ret is None or frame is None:
+            return False
+        if ret is None:
             return False
         self.frame = frame
         cv2.putText(frame, self.num, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
@@ -93,6 +94,7 @@ class SwitchCameras:
         app.run(host='0.0.0.0', port=12345)
 
     def give_nums(self):
+        """Needs to be fixed and improved"""
         for x in self.config:
             if x in self.verified:
                 self.verified[x]['num'] = self.config[x]['num']
@@ -108,39 +110,11 @@ class SwitchCameras:
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
 
     def relay(self, pub, rate):
+        """Relay to publish the image -- should work well but IDRK"""
         time.sleep(2)
         while not rospy.is_shutdown():
             pub.publish(self.bridge.cv2_to_img_msg(self.frame))
             rate.sleep()
-
-
-def show_all(cameras):
-    """Don't use this - incomplete"""
-
-    def blank_frame(shape):
-        """Returns a blank frame for displaying an odd number of video streams"""
-        return np.zeros(shape=shape.shape, dtype=np.uint8)
-
-    cameras = list(cameras.values())
-    frame = []
-    for camera in range(0, len(cameras) - 1, 1):
-        ret, frame1 = cv2.VideoCapture('http://{}:5000'.format(cameras[camera])).read()
-        if not ret:
-            camera -= 1
-            continue
-        try:
-            ret, frame2 = cv2.VideoCapture('http://{}:5000'.format(cameras[camera + 1])).read()
-        except IndexError:
-            frame2 = blank_frame(frame1)
-        else:
-            frame2 = blank_frame(frame1) if not ret else frame2
-        frame.append(cv2.hconcat([frame1, frame2]))
-
-    for camera in range(1, len(frame)):
-        frame[0] = cv2.vconcat([frame[0], frame[camera]])
-
-    cv2.putText(frame[0], 'All', (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-    return frame[0]
 
 
 def main():
