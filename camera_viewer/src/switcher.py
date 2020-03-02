@@ -7,7 +7,6 @@
 import cv2
 import json
 import time
-import numpy as np
 import threading
 import flask
 import rospy
@@ -85,7 +84,7 @@ class SwitchCameras:
             if flask.request.remote_addr not in self.verified:
                 self.verified[flask.request.remote_addr] = {}
                 try:
-                    self.give_nums()
+                    self.give_num(flask.request.remote_addr)
                 except IndexError:
                     print 'Camera detected, but all slots are filled'
             return "", 200
@@ -93,21 +92,15 @@ class SwitchCameras:
         print 'Web server online'
         app.run(host='0.0.0.0', port=12345)
 
-    def give_nums(self):
+    def give_num(self, ip):
         """Needs to be fixed and improved"""
-        for x in self.config:
-            if x in self.verified:
-                self.verified[x]['num'] = self.config[x]['num']
-                print 'Camera at {}, added under {}'.format(x, self.config[x]['num'])
-            else:
-                self.failed[x] = self.verified[x]
-
-        taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
-        available = [x for x in range(1, 8) if x not in taken]
-        for x in self.verified:
-            if 'num' not in self.verified[x]:
-                self.verified[x]['num'] = available.pop(0)
-                print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
+        if ip in self.config:
+            self.verified[ip]['num'] = self.config[ip]['num']
+        else:
+            taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
+            available = [x for x in range(1, 8) if x not in taken][0]
+            self.verified[ip]['num'] = available
+        print 'Camera at {}, added under {}'.format(ip, self.verified[ip]['num'])
 
     def relay(self, pub, rate):
         """Relay to publish the image -- should work well but IDRK"""
