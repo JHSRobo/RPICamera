@@ -60,20 +60,19 @@ class SwitchCameras:
                 return
             time.sleep(1)
 
-        self.num = self.verified.keys()[0]
-        print "Loading capture"
+        print "Loading capture from camera {}".format(self.num)
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
 
     def change_camera_callback(self, camera_num):
-        """rospy subscriber to change cameras"""
-        try:
-            if self.num == camera_num.data:
-                return
-            num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
-            self.change = True
-            self.num = num
-        except IndexError:
-            pass
+        """ROSPY subscriber to change cameras"""
+        if self.num != camera_num.data:
+            try:
+                num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
+            except IndexError:
+                pass
+            else:
+                self.change = True
+                self.num = num
 
     def find_cameras(self):
         """Creates a web server on port 12345 and waits until it gets pinged"""
@@ -87,13 +86,13 @@ class SwitchCameras:
                     self.give_num(flask.request.remote_addr)
                 except IndexError:
                     print 'Camera detected, but all slots are filled'
-            return "", 200
+            return ""
 
         print 'Web server online'
         app.run(host='0.0.0.0', port=12345)
 
     def give_num(self, ip):
-        """Needs to be fixed and improved"""
+        """Gives the lowest available number to the ip"""
         if ip in self.config:
             self.verified[ip]['num'] = self.config[ip]['num']
         else:
@@ -101,6 +100,9 @@ class SwitchCameras:
             available = [x for x in range(1, 8) if x not in taken][0]
             self.verified[ip]['num'] = available
         print 'Camera at {}, added under {}'.format(ip, self.verified[ip]['num'])
+        if self.num is False:
+            self.num = self.verified[ip]['num']
+            print 'Camera number is {}'.format(self.verified[ip]['num'])
 
     def relay(self, pub, rate):
         """Relay to publish the image -- should work well but IDRK"""
