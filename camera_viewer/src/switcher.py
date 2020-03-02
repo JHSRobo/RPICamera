@@ -12,6 +12,8 @@ import threading
 import flask
 import rospy
 from std_msgs.msg import UInt8
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 # NEED TO ADD SENSOR DATA
 # Overlay and timer stack
@@ -27,9 +29,14 @@ class SwitchCameras:
             print "Please make config.json if you want to save camera settings"
             self.config = {}
 
+        self.camera_sub = rospy.Subscriber('/rov/camera_select', UInt8, self.change_camera_callback)
+        self.pub = rospy.Publisher('/rov/camera_stream', Image, queue_size=1)
+        self.rate = rospy.Rate(10)
+        self.bridge = CvBridge()
+
         self.verified, self.failed = {}, {}
-        self.num = self.cap = None
-        self.change = False
+        self.num, self.cap = None, None
+        self.change, self.frame = False, False
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
@@ -42,11 +49,12 @@ class SwitchCameras:
             self.change = True
         if ret is None or frame is None:
             return False
+        self.frame = frame
         cv2.putText(frame, self.num, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         return frame
 
     def wait(self):
-        """Waits for a camera IP to be put into verified and then assigns numbers"""
+        """Waits for a camera IP to be put into verified"""
         while not self.verified:
             if rospy.is_shutdown():
                 return
@@ -56,7 +64,7 @@ class SwitchCameras:
         print "Loading capture"
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
 
-    def change_camera(self, camera_num):
+    def change_camera_callback(self, camera_num):
         """rospy subscriber to change cameras"""
         try:
             if self.num == camera_num.data:
@@ -68,10 +76,10 @@ class SwitchCameras:
             pass
 
     def find_cameras(self):
-        """Waits for a request on port 5000"""
+        """Creates a web server on port 12345 and waits until it gets pinged"""
         app = flask.Flask(__name__)
 
-        @app.route('/')
+        @app.route('/', methods=["POST"])
         def page():
             if flask.request.remote_addr not in self.verified:
                 self.verified[flask.request.remote_addr] = {}
@@ -79,7 +87,7 @@ class SwitchCameras:
                     self.give_nums()
                 except IndexError:
                     print 'Camera detected, but all slots are filled'
-            return "go away", 200
+            return "", 200
 
         print 'Web server online'
         app.run(host='0.0.0.0', port=12345)
@@ -99,23 +107,11 @@ class SwitchCameras:
                 self.verified[x]['num'] = available.pop(0)
                 print 'Camera at {}, added under {}'.format(x, self.verified[x]['num'])
 
-    def which_camera(self):
-        """rospy service - not being used"""
-        def ip():
-            return self.verified[self.num]
-        rospy.init_node("camera_ip_server")
-        s = rospy.Service('current_ip', camera_viewer.srv.current_ip, ip)
-        rospy.spin()
-
-    def camera_failed(self):
-        print "Camera {} has failed, switching to a different camera".format(self.verified[self.num]['num'])
-        try:
-            self.failed[self.num] = self.verified[self.num]
-            self.verified.pop(self.num, None)
-            #self.change_camera(self.verified.keys()[0])
-        except IndexError:
-            print 'No cameras available, quitting'
-            raise RuntimeError("No cameras available")
+    def relay(self, pub, rate):
+        time.sleep(2)
+        while not rospy.is_shutdown():
+            pub.publish(self.bridge.cv2_to_img_msg(self.frame))
+            rate.sleep()
 
 
 def show_all(cameras):
@@ -152,17 +148,17 @@ def main():
 
     # ROS Setup
     rospy.init_node('pilot_page')
-    rospy.Subscriber('/rov/camera_select', UInt8, switcher.change_camera)
 
     camera_thread = threading.Thread(target=switcher.find_cameras)
     camera_thread.setDaemon(True)
     camera_thread.start()
 
-    #service_thread = threading.Thread(target=switcher.which_camera)
-    #service_thread.start()
+    relay_thread = threading.Thread(target=switcher.relay)
+    relay_thread.setDaemon(True)
 
     print 'Waiting for cameras'
     switcher.wait()
+    relay_thread.start()
 
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
