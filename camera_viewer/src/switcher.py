@@ -119,9 +119,7 @@ class SwitchCameras:
         while not rospy.is_shutdown():
             if self.frame is not None:
                 self.pub.publish(self.bridge.cv2_to_img_msg(self.frame))
-                self.rate.sleep()
-            else:
-                self.rate.sleep()
+            self.rate.sleep()
 
 
 def main():

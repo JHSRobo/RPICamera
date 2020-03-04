@@ -29,7 +29,6 @@ grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 # Attempt to pull latest repo
 #git checkout release
 
-
 git pull
 
 # Start up camera streamer
