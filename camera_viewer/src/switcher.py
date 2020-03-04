@@ -33,8 +33,17 @@ class SwitchCameras:
         self.rate = rospy.Rate(10)
         self.bridge = CvBridge()
 
+        self.camera_thread = threading.Thread(target=self.find_cameras)
+        self.relay_thread = threading.Thread(target=switcher.relay)
+        self.camera_thread.setDaemon(True)
+        self.relay_thread.setDaemon(True)
+
+        self.camera_thread.start()
+        self.wait()
+        self.relay_thread.start()
+
         self.verified = {}
-        self.num = -1
+        self.num = 0
         self.change = False
         self.frame, self.cap = None, None
 
@@ -57,6 +66,7 @@ class SwitchCameras:
     def wait(self):
         """Waits for a camera IP to be put into verified"""
         while not self.verified:
+            print 'Waiting for cameras - None connected'
             if rospy.is_shutdown():
                 return
             time.sleep(1)
@@ -83,11 +93,12 @@ class SwitchCameras:
         @app.route('/', methods=["POST"])
         def page():
             if flask.request.remote_addr not in self.verified:
-                self.verified[flask.request.remote_addr] = {}
                 try:
-                    self.give_num(flask.request.remote_addr)
+                    self.verified[flask.request.remote_addr] = {"num": self.give_num(flask.request.remote_addr)}
                 except IndexError:
-                    print 'Camera detected, but all slots are filled'
+                    print 'Camera detected, but there\'s no number to assign it to'
+                else:
+                    print 'Camera at {}, added under {}'.format(flask.request.remote_addr, self.verified[flask.request.remote_addr]['num'])
             return ""
 
         print 'Web server online'
@@ -96,15 +107,11 @@ class SwitchCameras:
     def give_num(self, ip):
         """Gives the lowest available number to the ip"""
         if ip in self.config:
-            self.verified[ip]['num'] = self.config[ip]['num']
+            return self.config[ip]['num']
         else:
             taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
             available = [x for x in range(1, 8) if x not in taken][0]
-            self.verified[ip]['num'] = available
-        print 'Camera at {}, added under {}'.format(ip, self.verified[ip]['num'])
-        if self.num == -1:
-            self.num = self.verified[ip]['num']
-            print 'Camera number is {}'.format(self.verified[ip]['num'])
+            return available
 
     def relay(self):
         """Relay to publish the image -- should work well but IDRK"""
@@ -122,17 +129,6 @@ def main():
 
     # ROS Setup
     rospy.init_node('pilot_page')
-
-    camera_thread = threading.Thread(target=switcher.find_cameras)
-    camera_thread.setDaemon(True)
-    camera_thread.start()
-
-    relay_thread = threading.Thread(target=switcher.relay)
-    relay_thread.setDaemon(True)
-
-    print 'Waiting for cameras'
-    switcher.wait()
-    relay_thread.start()
 
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
