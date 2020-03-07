@@ -23,8 +23,6 @@ if [[ -d "/home/pi" ]]
 then
   echo -e "JHSRobo\nJHSRobo" | passwd pi
 
-  git clone https://github.com/jhsrobo/rpicamera
-
   # edit rc.local
   echo -e "#!/bin/bash -e \nbash /home/pi/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
