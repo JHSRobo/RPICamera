@@ -22,6 +22,11 @@ from cv_bridge import CvBridge
 class SwitchCameras:
     """The class for handling all the camera logic. Switches and reads the camera, adding an overlay to it"""
     def __init__(self):
+        self.verified = {}
+        self.num = 0
+        self.change = False
+        self.frame, self.cap = None, None
+
         try:
             self.config = json.load(open("config.json"))
         except IOError:
@@ -41,11 +46,6 @@ class SwitchCameras:
         self.camera_thread.start()
         self.wait()
         self.relay_thread.start()
-
-        self.verified = {}
-        self.num = 0
-        self.change = False
-        self.frame, self.cap = None, None
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
