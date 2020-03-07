@@ -46,7 +46,7 @@ class SwitchCameras:
 
         self.camera_thread.start()
         self.wait()
-        self.relay_thread.start()
+        #self.relay_thread.start()
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
@@ -60,7 +60,8 @@ class SwitchCameras:
             return False
         if ret is None:
             return False
-        self.frame = frame
+        #self.frame = frame
+        self.pub.publish(self.bridge.cv2_to_imgmsg(frame, encoding="bgr8"))
         cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         return frame
 
