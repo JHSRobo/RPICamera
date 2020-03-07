@@ -123,10 +123,8 @@ class SwitchCameras:
 
 
 def main():
-    switcher = SwitchCameras()
-
-    # ROS Setup
     rospy.init_node('pilot_page')
+    switcher = SwitchCameras()
 
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
