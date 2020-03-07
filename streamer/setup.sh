@@ -19,21 +19,14 @@ dpkg -l | grep nmap || apt install nmap -y
 
 
 # Safety checks
-if [[ "${USER}" == "pi" ]]
+if [[ -d "/home/pi" ]]
 then
-  #setup for all of the camera modules
-  bash rename.sh
+  echo -e "JHSRobo\nJHSRobo" | passwd pi
 
-  # change the password of the pi
-  useradd -m -d /home/camera/ -s /bin/bash -G sudo camera
-
-  echo -e "JHSRobo\nJHSRobo" | passwd camera
-
-  cd /home/camera || exit
   git clone https://github.com/jhsrobo/rpicamera
 
   # edit rc.local
-  echo -e "#!/bin/bash -e \nbash /home/camera/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
+  echo -e "#!/bin/bash -e \nbash /home/pi/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
   # enable cameras
   raspi-config nonint do_camera 0
