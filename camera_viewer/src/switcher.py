@@ -26,7 +26,7 @@ class SwitchCameras:
         self.num = 0
         self.ip = ""
         self.change = False
-        self.frame, self.cap = None, None
+        self.cap = None
 
         try:
             self.config = json.load(open("config.json"))
@@ -36,17 +36,12 @@ class SwitchCameras:
 
         self.camera_sub = rospy.Subscriber('/rov/camera_select', UInt8, self.change_camera_callback)
         self.pub = rospy.Publisher('/rov/camera_stream', Image, queue_size=1)
-        self.rate = rospy.Rate(60)
         self.bridge = CvBridge()
 
         self.camera_thread = threading.Thread(target=self.find_cameras)
-        self.relay_thread = threading.Thread(target=self.relay)
         self.camera_thread.setDaemon(True)
-        self.relay_thread.setDaemon(True)
 
         self.camera_thread.start()
-        self.wait()
-        #self.relay_thread.start()
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
@@ -60,7 +55,7 @@ class SwitchCameras:
             return False
         if ret is None:
             return False
-        #self.frame = frame
+
         self.pub.publish(self.bridge.cv2_to_imgmsg(frame, encoding="bgr8"))
         cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         return frame
@@ -117,18 +112,11 @@ class SwitchCameras:
             available = [x for x in range(1, 8) if x not in taken][0]
             return available
 
-    def relay(self):
-        """Relay to publish the image -- should work well but IDRK"""
-        time.sleep(2)
-        while not rospy.is_shutdown():
-            if self.frame is not None:
-                self.pub.publish(self.bridge.cv2_to_imgmsg(self.frame, encoding="bgr8"))
-            self.rate.sleep()
-
 
 def main():
     rospy.init_node('pilot_page')
     switcher = SwitchCameras()
+    switcher.wait()
 
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
