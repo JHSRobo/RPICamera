@@ -36,7 +36,7 @@ class SwitchCameras:
 
         self.camera_sub = rospy.Subscriber('/rov/camera_select', UInt8, self.change_camera_callback)
         self.pub = rospy.Publisher('/rov/camera_stream', Image, queue_size=1)
-        self.rate = rospy.Rate(10)
+        self.rate = rospy.Rate(60)
         self.bridge = CvBridge()
 
         self.camera_thread = threading.Thread(target=self.find_cameras)
