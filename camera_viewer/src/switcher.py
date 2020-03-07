@@ -24,6 +24,7 @@ class SwitchCameras:
     def __init__(self):
         self.verified = {}
         self.num = 0
+        self.ip = ""
         self.change = False
         self.frame, self.cap = None, None
 
@@ -71,9 +72,10 @@ class SwitchCameras:
                 return
             time.sleep(1)
 
-        self.num = self.verified[self.verified.keys()[0]]['num']
+        self.ip = self.verified.keys()[0]
+        self.num = self.verified[self.ip]['num']
         print "Loading capture from camera {}".format(self.num)
-        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.ip]))
 
     def change_camera_callback(self, camera_num):
         """ROSPY subscriber to change cameras"""
@@ -84,7 +86,8 @@ class SwitchCameras:
                 pass
             else:
                 self.change = True
-                self.num = num
+                self.num = self.verified[num]['num']
+                self.ip = num
 
     def find_cameras(self):
         """Creates a web server on port 12345 and waits until it gets pinged"""
