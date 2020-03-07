@@ -7,17 +7,9 @@ if [[ "$(id -u)" != 0 ]]
   exit
 fi
 
-# remove pi user
-id -u pi
-if [ $? != 1 ]
-  then
-    userdel pi
-    rm -rf /home/pi
-fi
-
-if [[ -f "/home/camera/rpicamera/streamer/raspivid.sh" ]]
+if [[ -f "/home/pi/rpicamera/streamer/raspivid.sh" ]]
 then
-   cd /home/camera/rpicamera/streamer || exit
+   cd /home/pi/rpicamera/streamer || exit
 else
   cd /home/jhsrobo/rpicamera/streamer || exit
 fi
@@ -28,7 +20,6 @@ grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 
 # Attempt to pull latest repo
 #git checkout release
-
 
 git pull
 
