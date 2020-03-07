@@ -52,7 +52,7 @@ class SwitchCameras:
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
         if self.change:
             self.cap.release()
-            self.cap = cv2.VideoCapture('http://{}:5000'.format(self.num))
+            self.cap = cv2.VideoCapture('http://{}:5000'.format(self.ip))
             self.change = False
         ret, frame = self.cap.read()
         if frame is None:
@@ -75,7 +75,7 @@ class SwitchCameras:
         self.ip = self.verified.keys()[0]
         self.num = self.verified[self.ip]['num']
         print "Loading capture from camera {}".format(self.num)
-        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.verified[self.ip]))
+        self.cap = cv2.VideoCapture('http://{}:5000'.format(self.ip))
 
     def change_camera_callback(self, camera_num):
         """ROSPY subscriber to change cameras"""
