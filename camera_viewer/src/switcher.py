@@ -34,7 +34,7 @@ class SwitchCameras:
         self.bridge = CvBridge()
 
         self.camera_thread = threading.Thread(target=self.find_cameras)
-        self.relay_thread = threading.Thread(target=switcher.relay)
+        self.relay_thread = threading.Thread(target=self.relay)
         self.camera_thread.setDaemon(True)
         self.relay_thread.setDaemon(True)
 
