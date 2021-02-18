@@ -21,14 +21,11 @@ dpkg -l | grep nmap || apt install nmap -y
 # Safety checks
 if [[ -d "/home/pi" ]]
 then
-  # make sure the folder has the right file
-  mv "../.." "/home/pi/rpicamera"
+  # make sure the folder has the right file and edit rc.local
+  (echo -e "#!/bin/bash -e \nbash "; find "/home/pi" -iname "rpicamera/streamer/startup.sh"; echo -e " &\nexit 0") > /etc/rc.local 
 
   # change the password for the pi account
   echo -e "JHSRobo\nJHSRobo" | passwd pi
-
-  # edit rc.local
-  echo -e "#!/bin/bash -e \nbash /home/pi/rpicamera/streamer/startup.sh &\nexit 0" > /etc/rc.local
 
   # enable cameras
   raspi-config nonint do_camera 0
@@ -46,6 +43,7 @@ then
 else
   # main pi setup
   # doesn't rename the pi and doesn't restart it which should allow it to not break the whole thing
+  # NOTE: REQUIRES THE FOLDER TO BE NAME rpicamera
 
   # edit rc.local
   echo -e "@reboot bash /home/jhsrobo/rpicamera/streamer/startup.sh" > /var/spool/cron/crontabs/root
