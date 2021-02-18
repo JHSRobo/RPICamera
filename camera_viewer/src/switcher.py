@@ -97,7 +97,8 @@ class SwitchCameras:
                 except IndexError:
                     print 'Camera detected, but there\'s no number to assign it to'
                 else:
-                    print 'Camera at {}, added under {}'.format(flask.request.remote_addr, self.verified[flask.request.remote_addr]['num'])
+                    print 'Camera at {}, added under {}'.format(flask.request.remote_addr,
+                                                                self.verified[flask.request.remote_addr]['num'])
             return ""
 
         print 'Web server online'

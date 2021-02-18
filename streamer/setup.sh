@@ -21,6 +21,10 @@ dpkg -l | grep nmap || apt install nmap -y
 # Safety checks
 if [[ -d "/home/pi" ]]
 then
+  # make sure the folder has the right file
+  mv "../.." "/home/pi/rpicamera"
+
+  # change the password for the pi account
   echo -e "JHSRobo\nJHSRobo" | passwd pi
 
   # edit rc.local
