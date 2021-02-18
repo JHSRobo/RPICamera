@@ -22,7 +22,7 @@ dpkg -l | grep nmap || apt install nmap -y
 if [[ -d "/home/pi" ]]
 then
   # make sure the folder has the right file and edit rc.local
-  (echo -e "#!/bin/bash -e \nbash "; find "/home/pi" -iname "rpicamera/streamer/startup.sh"; echo -e " &\nexit 0") > /etc/rc.local 
+  (echo -en "#!/bin/bash -e \nbash "; echo -n "$(find "/home/pi" -iname "rpicamera/streamer/startup.sh" | head -1)"; echo -en " &\nexit 0") > /etc/rc.local 
 
   # change the password for the pi account
   echo -e "JHSRobo\nJHSRobo" | passwd pi
