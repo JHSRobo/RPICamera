@@ -7,12 +7,7 @@ if [[ "$(id -u)" != 0 ]]
   exit
 fi
 
-if [[ -f "/home/pi/rpicamera/streamer/raspivid.sh" ]]
-then
-   cd /home/pi/rpicamera/streamer || exit
-else
-  cd /home/jhsrobo/rpicamera/streamer || exit
-fi
+cd `find "/home" -iname "rpicamera" | head -1` || exit
 
 grep -q "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
 
