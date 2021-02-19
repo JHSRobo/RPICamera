@@ -16,7 +16,7 @@ raspivid -n -cd MJPEG -ex fixedfps -ifx none -b 25000000 -br 60 -t 0 -rot ${ROTA
 # -b BITRATE to set bitrate
 # -o to pass the output to STDOUT which allows it to be pushed to ncat
 
-# -l 5000 listen on port 5000
+# -l 5000 to listen on port 5000
 # -k to connect repeatedly
 # -v to produce verbose error messages
 # -4 to use IPv4 addresses only
