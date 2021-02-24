@@ -31,7 +31,7 @@ dpkg -l | grep nmap || apt install nmap -y
 if [[ -d "/home/pi" ]]
 then
   # make sure the folder has the right file and edit rc.local to start up the streamer on boot
-  (echo -en "#!/bin/bash -e \nbash "; echo -n "$(find "/home/pi" -iname "rpicamera" | head -1)"; echo -en "/streamer/startup.sh &\nexit 0") > /etc/rc.local 
+  (echo -en "#!/bin/bash -e \nbash "; echo -n "$(find "/home/pi" -iname "rpicamera" | head -1)"; echo -e "/streamer/startup.sh &\nexit 0") > /etc/rc.local 
 
   # change the password for the pi account
   # cuz safety lol but plaintext
@@ -51,7 +51,7 @@ then
   ( echo -n camera; ifconfig | grep ether | awk '{ print $2; }' | awk -F ":" '{ print $6; }' ) > /etc/hostname
 
   # reboot
-  echo "/n#Setup" >> /etc/rc.local
+  echo "#Setup" >> /etc/rc.local
   reboot now
 else
   # Setup for the main pi instead of the camera pis
