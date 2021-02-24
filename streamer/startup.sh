@@ -11,9 +11,6 @@ grep -q "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
 
 grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 
-# Attempt to pull latest repo
-git pull
-
 # Start up camera streamer
 bash `find /home/pi -iname raspivid.sh | head 1` &
 bash `find /home/pi -iname ping.sh | head 1` &
