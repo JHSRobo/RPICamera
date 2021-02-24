@@ -17,5 +17,5 @@ grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 git pull
 
 # Start up camera streamer
-bash raspivid.sh &
-bash ping.sh &
+bash `find /home/pi -iname raspivid.sh | head 1` &
+bash `find /home/pi -iname ping.sh | head 1` &
