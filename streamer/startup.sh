@@ -7,7 +7,7 @@ if [[ "$(id -u)" != 0 ]]
   exit
 fi
 
-cd /home/pi/RPICamera/streamer || exit
+cd `find /home/pi -iname rpicamera | head -1` || exit
 
 grep -q "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
 
