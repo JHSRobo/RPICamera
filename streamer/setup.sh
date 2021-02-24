@@ -51,7 +51,7 @@ then
   ( echo -n camera; ifconfig | grep ether | awk '{ print $2; }' | awk -F ":" '{ print $6; }' ) > /etc/hostname
 
   # reboot
-  echo "#Setup" >> /etc/rc.local
+  echo "/n#Setup" >> /etc/rc.local
   reboot now
 else
   # Setup for the main pi instead of the camera pis
