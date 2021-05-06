@@ -10,6 +10,7 @@ import time
 import threading
 import flask
 import rospy
+import sys
 from std_msgs.msg import UInt8
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
@@ -127,6 +128,7 @@ def main():
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
     cv2.destroyAllWindows()
+    sys.exit()
 
 
 if __name__ == '__main__':
