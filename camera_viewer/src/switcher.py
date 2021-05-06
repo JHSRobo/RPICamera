@@ -10,7 +10,6 @@ import time
 import threading
 import flask
 import rospy
-import sys
 from std_msgs.msg import UInt8
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
@@ -64,14 +63,14 @@ class SwitchCameras:
     def wait(self):
         """Waits for a camera IP to be put into verified"""
         while not self.verified:
-            print 'Waiting for cameras - None connected'
+            rospy.logdebug('Waiting for cameras - None connected')
             if rospy.is_shutdown():
                 return
             time.sleep(1)
 
         self.ip = self.verified.keys()[0]
         self.num = self.verified[self.ip]['num']
-        print "Loading capture from camera {}".format(self.num)
+        rospy.loginfo("Loading capture from camera {}".format(self.num))
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.ip))
 
     def change_camera_callback(self, camera_num):
@@ -113,6 +112,10 @@ class SwitchCameras:
             taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
             available = [x for x in range(1, 8) if x not in taken][0]
             return available
+        
+    def cleaup(self):
+        """Closes the camera thread and attempts to cleanup the program"""
+        self.camera_thread.join()
 
 
 def main():
@@ -128,7 +131,6 @@ def main():
             cv2.imshow('Camera Feed', frame)
         cv2.waitKey(1)
     cv2.destroyAllWindows()
-    sys.exit()
 
 
 if __name__ == '__main__':
