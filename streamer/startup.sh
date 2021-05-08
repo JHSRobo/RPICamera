@@ -7,22 +7,10 @@ if [[ "$(id -u)" != 0 ]]
   exit
 fi
 
-if [[ -f "/home/pi/rpicamera/streamer/raspivid.sh" ]]
-then
-   cd /home/pi/rpicamera/streamer || exit
-else
-  cd /home/jhsrobo/rpicamera/streamer || exit
-fi
-
 grep -q "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
 
 grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
 
-# Attempt to pull latest repo
-#git checkout release
-
-git pull
-
 # Start up camera streamer
-bash raspivid.sh &
-bash ping.sh &
+bash `find /home/pi -iname raspivid.sh | head -1` &
+bash `find /home/pi -iname ping.sh | head -1` &

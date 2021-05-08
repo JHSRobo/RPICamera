@@ -1,6 +1,6 @@
 import cv2
 
-camera_ip = input("Ending IP Number? >> ")
+camera_ip = input("Ending IP Number? (Just the last octet. If it is 192.168.1.2, type 2) >> ")
 
 cap = cv2.VideoCapture("http://192.168.1." + str(camera_ip) + ":5000/")
 #cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('H', '2', '6', '4'))
