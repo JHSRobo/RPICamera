@@ -42,7 +42,7 @@ then
 
   # give more memory
   echo -e "$(sed '/gpu_mem/d' /boot/config.txt)" > /boot/config.txt
-  echo "gpu_mem=356" >> /boot/config.txt
+  echo "gpu_mem=256" >> /boot/config.txt
 
   # turn off the red light. if you leave it on, it reflects off the glass
   echo "disable_camera_led=1" >> /boot/config.txt
