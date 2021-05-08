@@ -12,7 +12,6 @@ import flask
 import rospy
 from std_msgs.msg import UInt8
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
 
 # NEED TO ADD SENSOR DATA
 # Overlay and timer stack
@@ -31,12 +30,10 @@ class SwitchCameras:
         try:
             self.config = json.load(open("config.json"))
         except IOError:
-            print "Please make config.json if you want to save camera settings"
+            rospy.logerr("Please make config.json if you want to save camera settings")
             self.config = {}
 
         self.camera_sub = rospy.Subscriber('/rov/camera_select', UInt8, self.change_camera_callback)
-        self.pub = rospy.Publisher('/rov/camera_stream', Image, queue_size=1)
-        self.bridge = CvBridge()
 
         self.camera_thread = threading.Thread(target=self.find_cameras)
         self.camera_thread.setDaemon(True)
@@ -56,20 +53,19 @@ class SwitchCameras:
         if ret is None:
             return False
 
-        self.pub.publish(self.bridge.cv2_to_imgmsg(frame, encoding="bgr8"))
         cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         return frame
 
     def wait(self):
         """Waits for a camera IP to be put into verified"""
         while not self.verified:
-            rospy.logdebug('Waiting for cameras - None connected')
+            rospy.logwarn('Waiting for cameras - None connected')
             if rospy.is_shutdown():
                 return
             time.sleep(1)
 
-        self.ip = self.verified.keys()[0]
-        self.num = self.verified[self.ip]['num']
+        self.ip = self.verified[1]
+        self.num = 1
         rospy.loginfo("Loading capture from camera {}".format(self.num))
         self.cap = cv2.VideoCapture('http://{}:5000'.format(self.ip))
 
@@ -77,13 +73,14 @@ class SwitchCameras:
         """ROSPY subscriber to change cameras"""
         if self.num != camera_num.data:
             try:
-                num = [x for x in self.verified if self.verified[x]['num'] == camera_num.data][0]
+                num = [x for x in self.verified if self.verified[x] == camera_num.data][0]
             except IndexError:
                 pass
             else:
                 self.change = True
-                self.num = self.verified[num]['num']
-                self.ip = num
+                self.ip = self.verified[num]
+                self.num = num
+            rospy.logerr("Changing to camera {}".format(self.num))
 
     def find_cameras(self):
         """Creates a web server on port 12345 and waits until it gets pinged"""
@@ -93,28 +90,29 @@ class SwitchCameras:
         def page():
             if flask.request.remote_addr not in self.verified:
                 try:
-                    self.verified[flask.request.remote_addr] = {"num": self.give_num(flask.request.remote_addr)}
+                    self.verified[self.give_num(flask.request.remove_addr)] = flask.request.remote_addr
                 except IndexError:
-                    print 'Camera detected, but there\'s no number to assign it to'
+                    rospy.logerr('Camera detected, but there\'s no number to assign it to')
                 else:
-                    print 'Camera at {}, added under {}'.format(flask.request.remote_addr,
-                                                                self.verified[flask.request.remote_addr]['num'])
+                    rospy.logwarn('Camera at {}, added under {}'.format(flask.request.remote_addr,self.verified[flask.request.remote_addr]))
             return ""
 
-        print 'Web server online'
+        rospy.logwarn('Camera web server online')
         app.run(host='0.0.0.0', port=12345)
 
     def give_num(self, ip):
         """Gives the lowest available number to the ip"""
         if ip in self.config:
-            return self.config[ip]['num']
+            return self.config[ip]
         else:
-            taken = [self.verified[x]['num'] for x in self.verified if 'num' in self.verified[x]]
+            taken = [self.verified[x] for x in self.verified]
             available = [x for x in range(1, 8) if x not in taken][0]
             return available
-        
+
     def cleaup(self):
         """Closes the camera thread and attempts to cleanup the program"""
+        flask.request.environ.get('werkzeug.server.shutdown')()
+        self.camera_thread.terminate()
         self.camera_thread.join()
 
 
