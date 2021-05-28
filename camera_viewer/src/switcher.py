@@ -112,9 +112,10 @@ class CameraSwitcher:
         def page():
             rospy.loginfo('camera_viewer: ping from {}'.format(flask.request.remote_addr))
             if flask.request.remote_addr not in self.verified.values():
-                rospy.loginfo(self.give_num(flask.request.remote_addr))
+                self.verified[self.give_num(flask.request.remote_addr)] = flask.request.remote_addr
                 try:
-                    self.verified[self.give_num(flask.request.remove_addr)] = flask.request.remote_addr
+                    pass
+                    #self.verified[self.give_num(flask.request.remove_addr)] = flask.request.remote_addr
                 except IndexError:
                     rospy.logerr('camera_viewer: camera detected, but there\'s no number to assign it to')
                 else:
