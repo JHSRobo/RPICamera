@@ -111,8 +111,8 @@ class CameraSwitcher:
         @app.route('/', methods=["POST", "GET"])
         def page():
             rospy.loginfo('camera_viewer: ping from {}'.format(flask.request.remote_addr))
-            rospy.loginfo(self.verified.values())
             if flask.request.remote_addr not in self.verified.values():
+                rospy.loginfo(self.verified.values())  
                 try:
                     self.verified[self.give_num(flask.request.remove_addr)] = flask.request.remote_addr
                 except IndexError:
