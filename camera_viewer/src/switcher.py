@@ -101,7 +101,7 @@ class CameraSwitcher:
         if self.num != camera_num.data:
             if self.ip:
                 self.change = True
-                self.num = num
+                self.num = camera_num.data
                 rospy.loginfo("camera_viewer: changing to camera {}".format(self.num))
 
     def find_cameras(self):
