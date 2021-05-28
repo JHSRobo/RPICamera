@@ -7,9 +7,7 @@ if [[ "$(id -u)" != 0 ]]
   exit
 fi
 
-grep -q "Setup" /etc/rc.local || ( echo "Running setup" && bash setup.sh )
-
-grep -q "Setup" /etc/rc.local || ( echo "Setup failed" && exit )
+grep -q "Setup" /etc/rc.local || ( echo "Please run setup!" && exit )
 
 # Start up camera streamer
 bash `find /home/pi -iname raspivid.sh || find /home/jhsrobo -iname raspivid.sh | head -1` &
