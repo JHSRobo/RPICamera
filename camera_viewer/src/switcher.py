@@ -108,7 +108,7 @@ class CameraSwitcher:
         """Creates a web server on port 12345 and waits until it gets pinged"""
         app = flask.Flask(__name__)
 
-        @app.route('/', methods=["POST"])
+        @app.route('/', methods=["POST", "GET"])
         def page():
             rospy.loginfo('camera_viewer: ping from {}'.format(flask.request.remote_addr))
             if flask.request.remote_addr not in self.verified.values():
