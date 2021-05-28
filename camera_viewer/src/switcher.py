@@ -114,7 +114,6 @@ class CameraSwitcher:
             if flask.request.remote_addr not in self.verified.values():
                 self.verified[self.give_num(flask.request.remote_addr)] = flask.request.remote_addr
                 rospy.loginfo('camera_viewer: cameras currently connected: {}'.format(self.verified))
-               
             return ""
 
         rospy.loginfo('camera_viewer: camera web server online')
