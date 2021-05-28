@@ -58,7 +58,7 @@ class CameraSwitcher:
             return self.verified[self.num]
         except KeyError:
             rospy.logerr("camera_viewer: passed a camera number that doesn't exist")
-            return False
+            return self.verified[self.verified.keys()[0]]
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
