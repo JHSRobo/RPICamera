@@ -98,7 +98,9 @@ class CameraSwitcher:
 
     def change_camera_callback(self, camera_num):
         """ROSPY subscriber to change cameras"""
-        if self.num != camera_num.data:
+        if not len(self.verified.keys()):
+          rospy.logerr('camera_viewer: passed a value when none are initialized )
+        elif self.num != camera_num.data:
             if self.ip:
                 self.change = True
                 self.num = camera_num.data
