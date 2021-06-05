@@ -122,10 +122,12 @@ class CameraSwitcher:
 
         @app.route('/', methods=["POST", "GET"])
         def page():
-            rospy.logerr(flask.request.data)
             rospy.logdebug('camera_viewer: ping from {}'.format(flask.request.remote_addr))
-            if flask.request.remote_addr not in self.verified.values():
-                self.verified[self.give_num(flask.request.remote_addr)] = flask.request.remote_addr
+            if flask.request.remote_addr not in self.verified.values() and len(flask.request.form.keys()) > 0:
+                if flask.request.form.keys()[0] in self.config.keys():
+                    self.verified[self.config[flask.request.form.keys()[0]]] = flask.request.remote_addr
+                else:
+                    self.verified[self.give_num(flask.request.remote_addr)] = flask.request.remote_addr
                 rospy.loginfo('camera_viewer: cameras currently connected: {}'.format(self.verified))
             return ""
 
