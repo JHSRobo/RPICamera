@@ -10,7 +10,7 @@ import time
 import threading
 import flask
 import rospy
-from std_msgs.msg import UInt8
+from std_msgs.msg import UInt8, Float32
 from sensor_msgs.msg import Image
 
 # NEED TO ADD SENSOR DATA
@@ -43,6 +43,9 @@ class CameraSwitcher:
             self.config = {}
 
         self.camera_sub = rospy.Subscriber('/rov/camera_select', UInt8, self.change_camera_callback)
+
+        self.depth_sub = rospy.Subscriber('/depth_sensor', Float32, self.change_depth_callback)
+        self.depth = 0
 
         self.camera_thread = threading.Thread(target=self.find_cameras)
         self.camera_thread.setDaemon(True)
@@ -79,6 +82,7 @@ class CameraSwitcher:
             return False
         else:
             cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, str(self.depth), (200, 400), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             return frame
 
     def wait(self):
@@ -107,6 +111,10 @@ class CameraSwitcher:
                 self.change = True
                 self.num = camera_num.data
                 rospy.loginfo("camera_viewer: changing to camera {}".format(self.num))
+
+    def change_depth_callback(self, depth):
+        """ROSPY subscriber to change depth"""
+        self.depth = depth.data
 
     def find_cameras(self):
         """Creates a web server on port 12345 and waits until it gets pinged"""
