@@ -58,6 +58,8 @@ class CameraSwitcher:
             return self.verified[self.num]
         except KeyError:
             rospy.logerr("camera_viewer: passed a camera number that doesn't exist")
+            if len(self.verified.keys()) == 0:
+                return ""
             return self.verified[self.verified.keys()[0]]
 
     def read(self):
