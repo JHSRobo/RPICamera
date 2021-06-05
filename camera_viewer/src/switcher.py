@@ -82,7 +82,7 @@ class CameraSwitcher:
             return False
         else:
             cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-            cv2.putText(frame, str("{:.2f}".format(self.depth)), (1500, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+            cv2.putText(frame, str("{:.2f}".format(self.depth)), (1200, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
             return frame
 
     def wait(self):
