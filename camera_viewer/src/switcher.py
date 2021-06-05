@@ -37,7 +37,7 @@ class CameraSwitcher:
         self.cap = None
 
         try:
-            self.config = json.load(open("config.json"))
+            self.config = json.load(open("/home/jhsrobo/config.json"))
         except IOError:
             rospy.logwarn("camera_viewer: please make config.json if you want to save camera settings")
             self.config = {}
