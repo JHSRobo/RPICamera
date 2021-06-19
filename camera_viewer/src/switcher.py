@@ -140,7 +140,7 @@ class CameraSwitcher:
             return self.config[ip]
         else:
             try:
-                available = [num for num in range(1, 8) if num not in self.verified][0]
+                available = [num for num in range(1, 8) if num not in self.verified and num not in self.config.values()][0]
             except IndexError:
                 rospy.logerr('camera_viwer: camera detected, but there are no available numbers')
             return available
