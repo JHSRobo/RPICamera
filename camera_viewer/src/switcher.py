@@ -10,7 +10,7 @@ import time
 import threading
 import flask
 import rospy
-from std_msgs.msg import UInt8, Float32
+from std_msgs.msg import UInt8, Float32, UInt32
 from sensor_msgs.msg import Image
 
 # NEED TO ADD SENSOR DATA
@@ -47,7 +47,7 @@ class CameraSwitcher:
         self.depth_sub = rospy.Subscriber('/depth_sensor', Float32, self.change_depth_callback)
         self.depth = 0
 
-        self.gpio_sub = rospy.Subscriber('/gpio_control', UInt8, self.change_gpio_callback)
+        self.gpio_sub = rospy.Subscriber('/gpio_control', UInt32, self.change_gpio_callback)
         self.electromags = {11: [-1, "Left pad"],
                            13: [-1, "Right pad"],
                            15: [-1, "Quadrat"],
