@@ -47,6 +47,13 @@ class CameraSwitcher:
         self.depth_sub = rospy.Subscriber('/depth_sensor', Float32, self.change_depth_callback)
         self.depth = 0
 
+        self.gpio_sub = rospy.Subscriber('/gpio_control', UInt8, self.change_gpio_callback)
+        self.electromags = {11: [-1, "Left pad"],
+                           13: [-1, "Right pad"],
+                           15: [-1, "Quadrat"],
+                           18: [-1, "Micro ROV"]
+                           }
+
         self.camera_thread = threading.Thread(target=self.find_cameras)
         self.camera_thread.setDaemon(True)
 
@@ -81,8 +88,12 @@ class CameraSwitcher:
             rospy.logwarn('camera_viewer: ret is None, can\'t display new frame')
             return False
         else:
-            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0][0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+            cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0][0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            height = 80
+            for x in self.electromags:
+                cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] == 1 else "Off"), ((1260 - cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] == 1 else "Off")), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0][0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA))
+                height += 40
             return frame
 
     def wait(self):
@@ -115,6 +126,11 @@ class CameraSwitcher:
     def change_depth_callback(self, depth):
         """ROSPY subscriber to change depth"""
         self.depth = depth.data
+
+    def change_gpio_callback(self, data):
+        """ROSPY subscriber to change gpio info"""
+        if data.data in self.electromags:
+            self.electromags[data.data][0] = self.electromags[data.data][0] * -1
 
     def find_cameras(self):
         """Creates a web server on port 12345 and waits until it gets pinged"""
