@@ -92,7 +92,7 @@ class CameraSwitcher:
             cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0][0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
             height = 80
             for x in self.electromags:
-                cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] == 1 else "Off"), ((1260 - cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] == 1 else "Off")), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0][0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA))
+                cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] == 1 else "Off"), ((1260 - cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] == 1 else "Off")), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0][0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
                 height += 40
             return frame
 
