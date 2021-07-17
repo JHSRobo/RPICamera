@@ -89,11 +89,13 @@ class CameraSwitcher:
             return False
         else:
             cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
-            cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0][0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
-            height = 80
-            for x in self.electromags:
-                cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] == 1 else "Off"), ((1260 - cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] == 1 else "Off")), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0][0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
-                height += 40
+            textSize = cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+            cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            height = 40 + textSize[1]
+            for x in self.electromags.values():
+                textSize = 1260 - cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] == 1 else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+                cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] == 1 else "Off"), (textSize[0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+                height += textSize[1] + 20
             return frame
 
     def wait(self):
