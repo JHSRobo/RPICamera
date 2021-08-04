@@ -48,10 +48,8 @@ class CameraSwitcher:
         self.depth = 0
 
         self.gpio_sub = rospy.Subscriber('/gpio_control', Int32, self.change_gpio_callback)
-        self.electromags = {13: [-1, "Left pad"],
-                           11: [-1, "Right pad"],
-                           18: [-1, "Quadrat"],
-                           15: [-1, "Micro ROV"]
+        self.electromags = {11: [-1, "Left pad"],
+                           15: [-1, "Right pad"]
                            }
 
         self.camera_thread = threading.Thread(target=self.find_cameras)
