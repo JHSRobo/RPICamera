@@ -42,12 +42,12 @@ class CameraSwitcher:
             rospy.logwarn("camera_viewer: please make config.json if you want to save camera settings")
             self.config = {}
 
-        self.camera_sub = rospy.Subscriber('/rov/camera_select', UInt8, self.change_camera_callback)
+        self.camera_sub = rospy.Subscriber('rov/camera_select', UInt8, self.change_camera_callback)
 
-        self.depth_sub = rospy.Subscriber('/depth_sensor', Float32, self.change_depth_callback)
+        self.depth_sub = rospy.Subscriber('depth_sensor', Float32, self.change_depth_callback)
         self.depth = 0
 
-        self.gpio_sub = rospy.Subscriber('/gpio_control', Int32, self.change_gpio_callback)
+        self.gpio_sub = rospy.Subscriber('rov/gpio_control', Int32, self.change_gpio_callback)
         self.electromags = {11: [-1, "Left pad"],
                            15: [-1, "Right pad"]
                            }
