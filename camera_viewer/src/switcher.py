@@ -48,8 +48,13 @@ class CameraSwitcher:
         self.depth = 0
 
         self.gpio_sub = rospy.Subscriber('rov/gpio_control', Int32, self.change_gpio_callback)
-        self.electromags = {11: [-1, "Left pad"],
-                           15: [-1, "Right pad"]
+        try:
+          self.gpio_service = rospy.ServiceProxy('gpio_status_server', gpio_status)
+        except rospy.ServiceException as e:
+            rospy.logerr("camera_viewer: GPIO status server not initialized. Will retry.")
+            self.gpio_service = None
+        self.electromags = {11: [False, "Left pad"],
+                           15: [False, "Right pad"]
                            }
 
         self.camera_thread = threading.Thread(target=self.find_cameras)
@@ -91,8 +96,8 @@ class CameraSwitcher:
             cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             height = 60 + textSize[1]
             for x in sorted(self.electromags.values()):
-                textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] == 1 else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
-                cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] == 1 else "Off"), (1260 - textSize[0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+                cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] else "Off"), (1260 - textSize[0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 height += textSize[1] + 20
             return frame
 
@@ -129,8 +134,13 @@ class CameraSwitcher:
 
     def change_gpio_callback(self, data):
         """ROSPY subscriber to change gpio info"""
+        if self.gpio_service is None:
+            try:
+                self.gpio_service = rospy.ServiceProxy('gpio_status_server', gpio_status)
+            except rospy.ServiceException as e:
+                rospy.logerr("camera_viewer: GPIO status server not initialized. Will retry.")
         if data.data in self.electromags:
-            self.electromags[data.data][0] = self.electromags[data.data][0] * -1
+            self.electromags[data.data][0] = self.gpio_service(data.data).status
 
     def find_cameras(self):
         """Creates a web server on port 12345 and waits until it gets pinged"""
