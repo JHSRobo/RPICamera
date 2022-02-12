@@ -49,9 +49,7 @@ then
 
   # rename the pi to tell the cameras apart. uses ifconfig ether then gets the last 2 digits of the mac address
   
-  ( echo -n camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }') > /etc/hostname
-  sed -i '$ d' /etc/hosts
-  ( echo -n 127.0.1.1       camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }' ) >> /etc/hosts
+  hostname $( echo -n camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }')
   
 
   # reboot
