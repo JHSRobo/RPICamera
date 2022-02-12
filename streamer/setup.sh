@@ -48,7 +48,11 @@ then
   echo "disable_camera_led=1" >> /boot/config.txt
 
   # rename the pi to tell the cameras apart. uses ifconfig ether then gets the last 2 digits of the mac address
-  ( echo -n camera; ifconfig | grep ether | awk '{ print $2; }' | awk -F ":" '{ print $6; }' ) > /etc/hostname
+  
+  ( echo -n camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }') > /etc/hostname
+  sed -i '$ d' /etc/hosts
+  ( echo -n camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }' ) >> /etc/hosts
+  
 
   # reboot
   echo "#Setup" >> /etc/rc.local
