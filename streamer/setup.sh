@@ -51,7 +51,7 @@ then
   
   ( echo -n camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }') > /etc/hostname
   sed -i '$ d' /etc/hosts
-  ( echo -n camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }' ) >> /etc/hosts
+  ( echo -n 127.0.1.1       camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }' ) >> /etc/hosts
   
 
   # reboot
