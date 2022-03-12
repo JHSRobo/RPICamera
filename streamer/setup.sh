@@ -30,9 +30,6 @@ dpkg -l | grep nmap || apt install nmap -y
 # Assumes that if the device name is pi then it must be a pi0
 if [[ -d "/home/pi" ]]
 then
-  # make sure the folder has the right file and edit rc.local to start up the streamer on boot
-  (echo -en "#!/bin/bash -e \nbash "; echo -n "$(find "/home/pi" -iname "rpicamera" | head -1)"; echo -e "/streamer/startup.sh &\nexit 0") > /etc/rc.local 
-
   # change the password for the pi account
   # cuz safety lol but plaintext
   echo -e "JHSRobo\nJHSRobo" | passwd pi
@@ -46,11 +43,6 @@ then
 
   # turn off the red light. if you leave it on, it reflects off the glass
   echo "disable_camera_led=1" >> /boot/config.txt
-
-  # rename the pi to tell the cameras apart. uses ifconfig ether then gets the last 2 digits of the mac address
-  
-  hostname $( echo -n camera; cat /sys/class/net/eth0/address | awk -F: '{ print $6 }')
-  
 
   # reboot
   echo "#Setup" >> /etc/rc.local
