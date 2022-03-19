@@ -12,6 +12,7 @@ import flask
 import rospy
 from std_msgs.msg import UInt8, Float32, Int32
 from sensor_msgs.msg import Image
+from gpio_control.srv import gpio_status
 
 # NEED TO ADD SENSOR DATA
 # Overlay and timer stack
