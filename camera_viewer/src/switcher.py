@@ -98,8 +98,14 @@ class CameraSwitcher:
             cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             textSize = cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
             cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-            textSize = cv2.getTextSize("{:.2f}".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
-            cv2.putText(frame, "{:.2f}".format(self.temp), (1260 - textSize[0], 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            textSize = cv2.getTextSize("{} C".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+            if self.temp < 60:
+                color = (0, 255, 0)
+            elif 60 <= self.temp < 80:
+                color = (0, 255, 255)
+            else:
+                color = (0, 0, 255)
+            cv2.putText(frame, "{} C".format(self.temp), (1260 - textSize[0], 80), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
             height = 120 + textSize[1]
             for x in sorted(self.electromags.values()):
                 textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
@@ -109,7 +115,7 @@ class CameraSwitcher:
 
     def wait(self):
         """Waits for a camera IP to be put into verified"""
-        rospy.loginfo('camera_viewer: waiting for cameras - None connected')
+        rospy.loginfo('camera_viewer: waiting for cameras - None connected')60
         while not self.verified:
             if rospy.is_shutdown():
                 return
