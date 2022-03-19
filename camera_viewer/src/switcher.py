@@ -44,6 +44,9 @@ class CameraSwitcher:
 
         self.camera_sub = rospy.Subscriber('rov/camera_select', UInt8, self.change_camera_callback)
 
+        self.temp_sub = rospy.Subscriber('rov/temp_sensor', Float32, self.change_temp_callback)
+        self.temp = 0
+
         self.depth_sub = rospy.Subscriber('depth_sensor', Float32, self.change_depth_callback)
         self.depth = 0
 
@@ -94,7 +97,9 @@ class CameraSwitcher:
             cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             textSize = cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
             cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-            height = 60 + textSize[1]
+            textSize = cv2.getTextSize("{:.2f}".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+            cv2.putText(frame, "{:.2f}".format(self.temp), (1260 - textSize[0], 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            height = 80 + textSize[1]
             for x in sorted(self.electromags.values()):
                 textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
                 cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] else "Off"), (1260 - textSize[0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
@@ -131,6 +136,10 @@ class CameraSwitcher:
     def change_depth_callback(self, depth):
         """ROSPY subscriber to change depth"""
         self.depth = depth.data
+
+    def change_temp_callback(self, temp):
+        """ROSPY subscriber to change temp"""
+        self.temp = temp.data
 
     def change_gpio_callback(self, data):
         """ROSPY subscriber to change gpio info"""
