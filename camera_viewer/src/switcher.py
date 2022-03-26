@@ -48,7 +48,7 @@ class CameraSwitcher:
         self.temp_sub = rospy.Subscriber('rov/temp_sensor', Float32, self.change_temp_callback)
         self.temp = 0
 
-        self.depth_sub = rospy.Subscriber('depth_sensor', Float32, self.change_depth_callback)
+        self.depth_sub = rospy.Subscriber('rov/depth_sensor', Float32, self.change_depth_callback)
         self.depth = 0
 
         self.gpio_sub = rospy.Subscriber('rov/gpio_control', Int32, self.change_gpio_callback)
