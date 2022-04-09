@@ -200,8 +200,8 @@ def main():
     switcher.wait()
 
     cv2.namedWindow("Camera Feed", cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    fullscreen = True
+    cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
+    fullscreen = False
     while not rospy.is_shutdown():
         frame = switcher.read()
         if cv2.waitKey(33) == ord('f'):
