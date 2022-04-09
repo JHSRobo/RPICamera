@@ -206,7 +206,7 @@ def main():
         frame = switcher.read()
         if cv2.waitKey(33) == ord('f'):
             if fullscreen == True:
-                cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_NORMAL, cv2.WINDOW_NORMAL)
+                cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
                 fullscreen = False
            elif fullscreen == False:
                 cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
