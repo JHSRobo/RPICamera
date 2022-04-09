@@ -115,7 +115,7 @@ class CameraSwitcher:
 
     def wait(self):
         """Waits for a camera IP to be put into verified"""
-        rospy.loginfo('camera_viewer: waiting for cameras - None connected')60
+        rospy.loginfo('camera_viewer: waiting for cameras - None connected')
         while not self.verified:
             if rospy.is_shutdown():
                 return
