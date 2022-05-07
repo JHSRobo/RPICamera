@@ -105,7 +105,7 @@ class CameraSwitcher:
                 color = (0, 255, 255)
             else:
                 color = (0, 0, 255)
-            cv2.putText(frame, "{} C".format(self.temp), (1260 - textSize[0], 80), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
+            cv2.putText(frame, "{:.2f} C".format(self.temp), (1260 - textSize[0], 80), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
             height = 120 + textSize[1]
             for x in sorted(self.electromags.values()):
                 textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
