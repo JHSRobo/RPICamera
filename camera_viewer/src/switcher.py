@@ -208,7 +208,7 @@ def main():
             if fullscreen == True:
                 cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
                 fullscreen = False
-           elif fullscreen == False:
+            elif fullscreen == False:
                 cv2.setWindowProperty("Camera Feed", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
                 fullscreen = True
         if frame is not False:
