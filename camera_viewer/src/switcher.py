@@ -98,7 +98,7 @@ class CameraSwitcher:
             cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             textSize = cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
             cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-            textSize = cv2.getTextSize("{} C".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+            textSize = cv2.getTextSize("{:.2f} C".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
             if self.temp < 60:
                 color = (0, 255, 0)
             elif 60 <= self.temp < 80:
