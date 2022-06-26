@@ -99,6 +99,10 @@ class CameraSwitcher:
             textSize = cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
             cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             textSize = cv2.getTextSize("{:.2f} C".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+            # Jesuit "Watermark"
+            textSize = cv2.getTextSize("Jesuit Rovotics", cv2.FONT_HERSHEY_TRIPLEX, 1, 2)[0]
+            cv2.putText(frame, "Jesuit Rovotics", (1260 - textSize[0], 1000), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            
             if self.temp < 60:
                 color = (0, 255, 0)
             elif 60 <= self.temp < 80:
@@ -184,7 +188,7 @@ class CameraSwitcher:
             try:
                 available = [num for num in range(1, 8) if num not in self.verified and num not in self.config.values()][0]
             except IndexError:
-                rospy.logerr('camera_viwer: camera detected, but there are no available numbers')
+                rospy.logerr('camera_viewer: camera detected, but there are no available numbers')
             return available
 
     def cleaup(self):
