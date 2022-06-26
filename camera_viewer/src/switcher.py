@@ -191,7 +191,7 @@ class CameraSwitcher:
                 rospy.logerr('camera_viewer: camera detected, but there are no available numbers')
             return available
 
-    def cleaup(self):
+    def cleanup(self):
         """Closes the camera thread and attempts to cleanup the program"""
         flask.request.environ.get('werkzeug.server.shutdown')()
         self.camera_thread.terminate()
