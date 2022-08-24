@@ -100,7 +100,7 @@ class CameraSwitcher:
             cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             textSize = cv2.getTextSize("{:.2f} C".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
             # Jesuit "Watermark"
-            textSize = cv2.getTextSize("Jesuit Rovotics", cv2.FONT_HERSHEY_TRIPLEX, 1, 2)[0]
+            textSize = cv2.getTextSize("Jesuit Robotics", cv2.FONT_HERSHEY_TRIPLEX, 1, 2)[0]
             cv2.putText(frame, "Jesuit Rovotics", (1260 - textSize[0], 1000), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             
             if self.temp < 60:
