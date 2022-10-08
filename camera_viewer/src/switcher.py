@@ -99,9 +99,6 @@ class CameraSwitcher:
             textSize = cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
             cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             textSize = cv2.getTextSize("{:.2f} C".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
-            # Jesuit "Watermark"
-            textSize = cv2.getTextSize("Jesuit Robotics", cv2.FONT_HERSHEY_TRIPLEX, 1, 2)[0]
-            cv2.putText(frame, "Jesuit Rovotics", (1260 - textSize[0], 1000), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             
             if self.temp < 60:
                 color = (0, 255, 0)
@@ -111,6 +108,11 @@ class CameraSwitcher:
                 color = (0, 0, 255)
             cv2.putText(frame, "{:.2f} C".format(self.temp), (1260 - textSize[0], 80), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
             height = 120 + textSize[1]
+            
+            # Jesuit "Watermark"
+            textSize = cv2.getTextSize("Jesuit Robotics", cv2.FONT_HERSHEY_TRIPLEX, 1, 2)[0]
+            cv2.putText(frame, "Jesuit Robotics", (1000, 1000), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            
             for x in sorted(self.electromags.values()):
                 textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
                 cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] else "Off"), (1260 - textSize[0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
