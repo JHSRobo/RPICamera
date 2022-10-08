@@ -84,24 +84,24 @@ class CameraSwitcher:
     def depth_bar(self, frame):
         depthLevel = (self.depth - 198) / (77.0 / 12)
         # Preparing the bar
-        cv2.line(frame, (900, 120), (900, 600), (0, 0, 255), 5)
-        cv2.line(frame, (900, 120), (850, 120), (0, 0, 255), 5)
-        cv2.line(frame, (900, 600), (875, 600), (0, 0, 255), 5)
+        cv2.line(frame, (1240, 128), (1240, 640), (0, 0, 255), 5)
+        cv2.line(frame, (1240, 128), (1190, 128), (0, 0, 255), 5)
+        cv2.line(frame, (1240, 640), (1190, 640), (0, 0, 255), 5)
 
         # Intervals (32 pixels)
-        for i in range(15):
-            if i % 2 == 0:
-                cv2.line(frame, (900, 568 - (i * 32)), (875, 568 - (i * 32)), (0, 0, 255), 5)
+        for i in range(16):
+            if i % 2 == 1:
+                cv2.line(frame, (1240, 608 - (i * 32)), (1215, 568 - (i * 32)), (0, 0, 255), 5)
             else:
-                cv2.line(frame, (900, 568 - (i * 32)), (850, 568 - (i * 32)), (0, 0, 255), 5)
+                cv2.line(frame, (1240, 608 - (i * 32)), (1190, 568 - (i * 32)), (0, 0, 255), 5)
 
         # Draw pointer
-        pt1 = (900, (depthLevel * 32) + 120)
-        pt2 = (850, (depthLevel * 32) + 145)
-        pt3 = (850, (depthLevel * 32) + 95)
+        pt1 = (1240, (depthLevel * 32) + 128)
+        pt2 = (1190, (depthLevel * 32) + 153)
+        pt3 = (1190, (depthLevel * 32) + 103)
 
         pointer = np.array([pt1, pt2, pt3])
-        cv2.drawContours(frame, [pointer], 0, (0,255,0), -1)
+        cv2.drawContours(frame, [pointer.astype(int)], 0, (0,255,0), -1)
         return frame
 
     def read(self):
@@ -139,12 +139,13 @@ class CameraSwitcher:
             cv2.putText(frame, "Jesuit Robotics", (1260 - textSize[0], 705), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             
             # Depth Bar
-            frame = this.depth_bar(self, frame)
+            frame = self.depth_bar(frame)
             
-            for x in sorted(self.electromags.values()):
-                textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
-                cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] else "Off"), (1260 - textSize[0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-                height += textSize[1] + 20
+            # Old code for electromagnets
+            #for x in sorted(self.electromags.values()):
+                #textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+                #cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] else "Off"), (1260 - textSize[0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                #height += textSize[1] + 20
             return frame
 
     def wait(self):
