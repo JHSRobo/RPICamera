@@ -81,19 +81,22 @@ class CameraSwitcher:
                 return ""
             return self.verified[self.verified.keys()[0]]
         
+    def depth_calibration(self):
+        return abs((self.depth - 198.3) / (893.04 / 149))
+    
     def depth_bar(self, frame):
-        depthLevel = (self.depth - 198) / (77.0 / 12)
+        depthLevel = self.depth_calibration()
         # Preparing the bar
-        cv2.line(frame, (1240, 128), (1240, 640), (0, 0, 255), 5)
-        cv2.line(frame, (1240, 128), (1190, 128), (0, 0, 255), 5)
-        cv2.line(frame, (1240, 640), (1190, 640), (0, 0, 255), 5)
+        cv2.line(frame, (1240, 128), (1240, 640), (48, 18, 196), 5)
+        cv2.line(frame, (1240, 128), (1190, 128), (48, 18, 196), 5)
+        cv2.line(frame, (1240, 640), (1190, 640), (48, 18, 196), 5)
 
         # Intervals (32 pixels)
         for i in range(16):
-            if i % 2 == 1:
-                cv2.line(frame, (1240, 608 - (i * 32)), (1215, 568 - (i * 32)), (0, 0, 255), 5)
+            if i % 2 == 0:
+                cv2.line(frame, (1240, 608 - (i * 32)), (1215, 608 - (i * 32)), (48, 18, 196), 5)
             else:
-                cv2.line(frame, (1240, 608 - (i * 32)), (1190, 568 - (i * 32)), (0, 0, 255), 5)
+                cv2.line(frame, (1240, 608 - (i * 32)), (1190, 608 - (i * 32)), (48, 18, 196), 5)
 
         # Draw pointer
         pt1 = (1240, (depthLevel * 32) + 128)
@@ -101,11 +104,12 @@ class CameraSwitcher:
         pt3 = (1190, (depthLevel * 32) + 103)
 
         pointer = np.array([pt1, pt2, pt3])
-        cv2.drawContours(frame, [pointer.astype(int)], 0, (0,255,0), -1)
+        cv2.drawContours(frame, [pointer.astype(int)], 0, (19,185,253), -1)
         return frame
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
+        depthLevel = self.depth_calibration()
         if self.change:
             self.cap.release()
             self.cap = cv2.VideoCapture('http://{}:5000'.format(self.ip))
@@ -121,8 +125,10 @@ class CameraSwitcher:
             return False
         else:
             cv2.putText(frame, str(self.num), (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-            textSize = cv2.getTextSize("{:.2f}".format(self.depth), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
-            cv2.putText(frame, "{:.2f}".format(self.depth), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            if depthLevel < 0.5: # Displays 0 ft when surfaced rather than weird number
+                depthLevel = 0
+            textSize = cv2.getTextSize("{:.2f} ft".format(-abs(depthLevel)), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
+            cv2.putText(frame, "{:.2f} ft".format(-abs(depthLevel)), (1260 - textSize[0], 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             textSize = cv2.getTextSize("{:.2f} C".format(self.temp), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
             
             if self.temp < 60:
@@ -136,7 +142,7 @@ class CameraSwitcher:
             
             # Jesuit "Watermark"
             textSize = cv2.getTextSize("Jesuit Robotics", cv2.FONT_HERSHEY_TRIPLEX, 1, 2)[0]
-            cv2.putText(frame, "Jesuit Robotics", (1260 - textSize[0], 705), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, "Jesuit Robotics", (1260 - textSize[0], 705), cv2.FONT_HERSHEY_TRIPLEX, 1, (48, 18, 196), 2, cv2.LINE_AA)
             
             # Depth Bar
             frame = self.depth_bar(frame)
