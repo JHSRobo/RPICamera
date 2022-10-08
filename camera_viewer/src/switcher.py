@@ -80,6 +80,29 @@ class CameraSwitcher:
             if len(self.verified.keys()) == 0:
                 return ""
             return self.verified[self.verified.keys()[0]]
+        
+    def depth_bar(self, frame):
+        depthLevel = (self.depth - 198) / (77.0 / 12)
+        # Preparing the bar
+        cv2.line(frame, (900, 120), (900, 600), (0, 0, 255), 5)
+        cv2.line(frame, (900, 120), (850, 120), (0, 0, 255), 5)
+        cv2.line(frame, (900, 600), (875, 600), (0, 0, 255), 5)
+
+        # Intervals (32 pixels)
+        for i in range(15):
+            if i % 2 == 0:
+                cv2.line(frame, (900, 568 - (i * 32)), (875, 568 - (i * 32)), (0, 0, 255), 5)
+            else:
+                cv2.line(frame, (900, 568 - (i * 32)), (850, 568 - (i * 32)), (0, 0, 255), 5)
+
+        # Draw pointer
+        pt1 = (900, (depthLevel * 32) + 120)
+        pt2 = (850, (depthLevel * 32) + 145)
+        pt3 = (850, (depthLevel * 32) + 95)
+
+        pointer = np.array([pt1, pt2, pt3])
+        cv2.drawContours(frame, [pointer], 0, (0,255,0), -1)
+        return frame
 
     def read(self):
         """Reads a frame from the cv2 video capture and adds the overlay to it"""
@@ -123,29 +146,6 @@ class CameraSwitcher:
                 cv2.putText(frame, "{}: {}".format(x[1], "On" if x[0] else "Off"), (1260 - textSize[0], height), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 height += textSize[1] + 20
             return frame
-        
-    def depth_bar(self, frame):
-        depthLevel = (self.depth - 198) / (77.0 / 12)
-        # Preparing the bar
-        cv2.line(frame, (900, 120), (900, 600), (0, 0, 255), 5)
-        cv2.line(frame, (900, 120), (850, 120), (0, 0, 255), 5)
-        cv2.line(frame, (900, 600), (875, 600), (0, 0, 255), 5)
-
-        # Intervals (32 pixels)
-        for i in range(15):
-            if i % 2 == 0:
-                img = cv2.line(img, (900, 568 - (i * 32)), (875, 568 - (i * 32)), (0, 0, 255), 5)
-            else:
-                img = cv2.line(img, (900, 568 - (i * 32)), (850, 568 - (i * 32)), (0, 0, 255), 5)
-
-        # Draw pointer
-        pt1 = (900, (depthLevel * 32) + 120)
-        pt2 = (850, (depthLevel * 32) + 145)
-        pt3 = (850, (depthLevel * 32) + 95)
-
-        pointer = np.array([pt1, pt2, pt3])
-        cv2.drawContours(frame, [pointer], 0, (0,255,0), -1)
-        return frame
 
     def wait(self):
         """Waits for a camera IP to be put into verified"""
