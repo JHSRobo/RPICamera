@@ -139,7 +139,7 @@ class CameraSwitcher:
             cv2.putText(frame, "Jesuit Robotics", (1260 - textSize[0], 705), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             
             # Depth Bar
-            frame = depth_bar(self, frame)
+            frame = this.depth_bar(self, frame)
             
             for x in sorted(self.electromags.values()):
                 textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
