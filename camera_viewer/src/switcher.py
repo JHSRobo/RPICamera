@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Switcher.py
 # By Andrew Grindstaff
+# Maintained by Alex Bertran (06/27/22 - Present)
 # ROS Package to switch between cameras streaming to port 5000
 # Streamer code in streamer directory at streamer.py
 
@@ -111,7 +112,7 @@ class CameraSwitcher:
             
             # Jesuit "Watermark"
             textSize = cv2.getTextSize("Jesuit Robotics", cv2.FONT_HERSHEY_TRIPLEX, 1, 2)[0]
-            cv2.putText(frame, "Jesuit Robotics", (1000, 1000), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, "Jesuit Robotics", (1260 - textSize[0], 705), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             
             for x in sorted(self.electromags.values()):
                 textSize = cv2.getTextSize("{}: {}".format(x[1], "On" if x[0] else "Off"), cv2.FONT_HERSHEY_COMPLEX, 1, 2)[0]
