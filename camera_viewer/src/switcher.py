@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Switcher.py
 # By Andrew Grindstaff
 # Maintained by Alex Bertran (06/27/22 - Present)
